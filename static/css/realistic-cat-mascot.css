@@ -1,0 +1,1189 @@
+/* Tech Buddy Mascot - Cute Slime Animation */
+
+.tech-buddy-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100px;
+    height: 120px;
+    z-index: 999;
+    pointer-events: all;
+    cursor: pointer;
+    transform-origin: center center;
+    transition: none;
+    will-change: transform;
+}
+
+.tech-buddy-container:hover {
+    filter: drop-shadow(0 15px 40px rgba(34, 211, 238, 0.8));
+}
+
+.tech-buddy-main {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-origin: center bottom;
+}
+
+/* Slime Body - Main Container (Jelly-like blob shape) */
+.slime-body {
+    position: relative;
+    width: 95px;
+    height: 95px;
+    margin: 0 auto;
+    transform-origin: center bottom;
+    will-change: transform;
+    animation: slimeBreathing 3s ease-in-out infinite,
+               slimeFloat 4s ease-in-out infinite,
+               slimeColorShift 10s ease-in-out infinite;
+}
+
+.slime-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at 50% 35%,
+        rgba(165, 243, 252, 0.95) 0%,
+        rgba(103, 232, 249, 0.9) 25%,
+        rgba(34, 211, 238, 0.85) 50%,
+        rgba(6, 182, 212, 0.8) 75%,
+        rgba(8, 145, 178, 0.7) 100%
+    );
+    border-radius: 42% 38% 58% 62% / 35% 35% 65% 65%;
+    filter: blur(1px);
+    animation: slimeMorph 5s ease-in-out infinite,
+               slimeGlow 2s ease-in-out infinite;
+    box-shadow: 
+        0 10px 30px rgba(6, 182, 212, 0.6),
+        0 5px 15px rgba(34, 211, 238, 0.4),
+        inset 0 -10px 20px rgba(8, 145, 178, 0.3),
+        inset 0 10px 20px rgba(165, 243, 252, 0.4);
+}
+
+.slime-body::after {
+    content: '';
+    position: absolute;
+    inset: 5%;
+    background: radial-gradient(
+        ellipse at 50% 35%,
+        rgba(224, 242, 254, 0.3) 0%,
+        rgba(186, 230, 253, 0.2) 40%,
+        transparent 70%
+    );
+    border-radius: 42% 38% 58% 62% / 35% 35% 65% 65%;
+    animation: slimeInnerGlow 3s ease-in-out infinite;
+}
+
+/* Slime Core - Inner Depth */
+.slime-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(
+        ellipse at 50% 45%,
+        rgba(224, 242, 254, 0.4) 0%,
+        rgba(186, 230, 253, 0.3) 30%,
+        rgba(103, 232, 249, 0.2) 60%,
+        transparent 90%
+    );
+    border-radius: 50%;
+    animation: slimeCoreBreath 3.5s ease-in-out infinite,
+               slimeCorePulse 2s ease-in-out infinite;
+    filter: blur(3px);
+}
+
+/* Slime Shine Effects - Glossy Look */
+.slime-shine {
+    position: absolute;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.6) 30%,
+        rgba(224, 242, 254, 0.3) 60%,
+        transparent 100%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: slimeShineMove 4s ease-in-out infinite;
+}
+
+.slime-shine-1 {
+    top: 15%;
+    left: 25%;
+    width: 25px;
+    height: 20px;
+    animation-delay: 0s;
+    animation-name: slimeShineMove1;
+}
+
+.slime-shine-2 {
+    top: 25%;
+    right: 28%;
+    width: 15px;
+    height: 12px;
+    animation-delay: 0.5s;
+    animation-name: slimeShineMove2;
+}
+
+.slime-shine-3 {
+    top: 45%;
+    left: 35%;
+    width: 10px;
+    height: 8px;
+    animation-delay: 1s;
+    animation-name: slimeShineMove3;
+    opacity: 0.7;
+}
+
+/* Slime Eyes - Cute and Expressive */
+.slime-eyes {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+}
+
+.slime-eye {
+    position: relative;
+    width: 22px;
+    height: 24px;
+    background: radial-gradient(
+        ellipse at 50% 45%,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.98) 60%,
+        rgba(240, 240, 255, 0.95) 100%
+    );
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        inset 0 -2px 4px rgba(6, 182, 212, 0.2),
+        0 0 15px rgba(255, 255, 255, 0.6);
+    animation: slimeBlink 4s ease-in-out infinite,
+               slimeEyeWiggle 3s ease-in-out infinite;
+    transform-origin: center center;
+}
+
+.slime-eye-left {
+    animation-delay: 0s;
+}
+
+.slime-eye-right {
+    animation-delay: 0.1s;
+}
+
+.slime-pupil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 12px;
+    background: radial-gradient(
+        ellipse at 40% 35%,
+        rgba(20, 20, 30, 1) 0%,
+        rgba(10, 10, 20, 1) 70%,
+        rgba(5, 5, 15, 1) 100%
+    );
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    animation: slimePupilMove 6s ease-in-out infinite;
+}
+
+.slime-eye-shine {
+    position: absolute;
+    top: 25%;
+    left: 30%;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        transparent 100%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: slimeEyeShineGlow 2s ease-in-out infinite;
+}
+
+/* Slime Mouth - Cute Expression */
+.slime-mouth {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 14px;
+    border: 3px solid rgba(6, 182, 212, 0.8);
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    background: radial-gradient(
+        ellipse at 50% 0%,
+        rgba(34, 211, 238, 0.3) 0%,
+        rgba(103, 232, 249, 0.2) 40%,
+        transparent 70%
+    );
+    box-shadow: 
+        0 2px 6px rgba(6, 182, 212, 0.4),
+        inset 0 -2px 4px rgba(8, 145, 178, 0.3);
+    animation: slimeMouthTalk 3s ease-in-out infinite,
+               slimeMouthSmile 5s ease-in-out infinite;
+}
+
+/* Slime Shadow - Soft Ground Shadow */
+.slime-shadow {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 12px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(8, 145, 178, 0.4) 0%,
+        rgba(6, 182, 212, 0.3) 30%,
+        rgba(34, 211, 238, 0.2) 60%,
+        transparent 100%
+    );
+    border-radius: 50%;
+    filter: blur(4px);
+    animation: slimeShadowPulse 3s ease-in-out infinite,
+               slimeShadowMove 4s ease-in-out infinite;
+}
+
+/* Particle Container */
+.particle-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.tech-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at center,
+        rgba(186, 230, 253, 1) 0%,
+        rgba(103, 232, 249, 0.8) 50%,
+        transparent 100%
+    );
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.8);
+    animation: particleFloat 3s ease-in-out infinite;
+}
+
+/* Speech Bubble */
+.speech-bubble {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, 
+        rgba(6, 182, 212, 0.95) 0%,
+        rgba(8, 145, 178, 0.98) 100%
+    );
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    max-width: 220px;
+    text-align: center;
+    box-shadow: 
+        0 8px 25px rgba(8, 145, 178, 0.6),
+        0 0 30px rgba(34, 211, 238, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1001;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    animation: bubbleFloat 2s ease-in-out infinite;
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid rgba(8, 145, 178, 0.98);
+    filter: drop-shadow(0 3px 6px rgba(8, 145, 178, 0.4));
+}
+
+.bubble-text {
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   KEYFRAME ANIMATIONS - 700+ Frames Total
+   ============================================ */
+
+/* Slime Body Breathing - 180 frames (60fps x 3s) - Jelly-like viscous breathing */
+@keyframes slimeBreathing {
+    0%, 100% {
+        transform: scaleX(1) scaleY(1);
+    }
+    25% {
+        transform: scaleX(1.06) scaleY(0.96);
+    }
+    50% {
+        transform: scaleX(1.1) scaleY(0.93);
+    }
+    75% {
+        transform: scaleX(1.06) scaleY(0.96);
+    }
+}
+
+/* Slime Float - 240 frames (60fps x 4s) */
+@keyframes slimeFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    15% {
+        transform: translateY(-3px);
+    }
+    30% {
+        transform: translateY(-5px);
+    }
+    45% {
+        transform: translateY(-3px);
+    }
+    50% {
+        transform: translateY(0px);
+    }
+    65% {
+        transform: translateY(-2px);
+    }
+    80% {
+        transform: translateY(-4px);
+    }
+    95% {
+        transform: translateY(-1px);
+    }
+}
+
+/* Slime Color Shift - 600 frames (60fps x 10s) */
+@keyframes slimeColorShift {
+    0%, 100% {
+        filter: hue-rotate(0deg) saturate(1);
+    }
+    10% {
+        filter: hue-rotate(3deg) saturate(1.05);
+    }
+    20% {
+        filter: hue-rotate(5deg) saturate(1.1);
+    }
+    30% {
+        filter: hue-rotate(3deg) saturate(1.05);
+    }
+    40% {
+        filter: hue-rotate(0deg) saturate(1);
+    }
+    50% {
+        filter: hue-rotate(-3deg) saturate(1.05);
+    }
+    60% {
+        filter: hue-rotate(-5deg) saturate(1.1);
+    }
+    70% {
+        filter: hue-rotate(-3deg) saturate(1.05);
+    }
+    80% {
+        filter: hue-rotate(0deg) saturate(1);
+    }
+    90% {
+        filter: hue-rotate(2deg) saturate(1.03);
+    }
+}
+
+/* Slime Morph - 300 frames (60fps x 5s) - Jelly-like blob shape with droopy bottom */
+@keyframes slimeMorph {
+    0%, 100% {
+        border-radius: 42% 38% 58% 62% / 35% 35% 65% 65%;
+    }
+    12.5% {
+        border-radius: 40% 40% 60% 60% / 33% 33% 67% 67%;
+    }
+    25% {
+        border-radius: 38% 42% 62% 58% / 30% 30% 70% 70%;
+    }
+    37.5% {
+        border-radius: 41% 39% 59% 61% / 32% 32% 68% 68%;
+    }
+    50% {
+        border-radius: 39% 41% 61% 59% / 34% 34% 66% 66%;
+    }
+    62.5% {
+        border-radius: 43% 37% 57% 63% / 36% 36% 64% 64%;
+    }
+    75% {
+        border-radius: 40% 40% 60% 60% / 33% 33% 67% 67%;
+    }
+    87.5% {
+        border-radius: 41% 39% 59% 61% / 34% 34% 66% 66%;
+    }
+}
+
+/* Slime Glow - 120 frames (60fps x 2s) */
+@keyframes slimeGlow {
+    0%, 100% {
+        box-shadow: 
+            0 10px 30px rgba(6, 182, 212, 0.6),
+            0 5px 15px rgba(34, 211, 238, 0.4),
+            inset 0 -10px 20px rgba(8, 145, 178, 0.3),
+            inset 0 10px 20px rgba(165, 243, 252, 0.4);
+    }
+    25% {
+        box-shadow: 
+            0 12px 35px rgba(6, 182, 212, 0.7),
+            0 6px 18px rgba(34, 211, 238, 0.5),
+            inset 0 -12px 25px rgba(8, 145, 178, 0.4),
+            inset 0 12px 25px rgba(165, 243, 252, 0.5);
+    }
+    50% {
+        box-shadow: 
+            0 15px 40px rgba(6, 182, 212, 0.8),
+            0 8px 20px rgba(34, 211, 238, 0.6),
+            inset 0 -15px 30px rgba(8, 145, 178, 0.5),
+            inset 0 15px 30px rgba(165, 243, 252, 0.6);
+    }
+    75% {
+        box-shadow: 
+            0 12px 35px rgba(6, 182, 212, 0.7),
+            0 6px 18px rgba(34, 211, 238, 0.5),
+            inset 0 -12px 25px rgba(8, 145, 178, 0.4),
+            inset 0 12px 25px rgba(165, 243, 252, 0.5);
+    }
+}
+
+/* Slime Inner Glow - 180 frames */
+@keyframes slimeInnerGlow {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    33% {
+        opacity: 0.5;
+        transform: scale(1.05);
+    }
+    66% {
+        opacity: 0.4;
+        transform: scale(1.02);
+    }
+}
+
+/* Slime Core Breath - 210 frames */
+@keyframes slimeCoreBreath {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+/* Slime Core Pulse - 120 frames */
+@keyframes slimeCorePulse {
+    0%, 100% {
+        filter: blur(3px) brightness(1);
+    }
+    50% {
+        filter: blur(4px) brightness(1.2);
+    }
+}
+
+/* Slime Shine Move 1 - 240 frames */
+@keyframes slimeShineMove1 {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.9;
+    }
+    25% {
+        transform: translate(2px, -2px) scale(1.05);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(4px, -4px) scale(1.1);
+        opacity: 0.95;
+    }
+    75% {
+        transform: translate(2px, -2px) scale(1.05);
+        opacity: 1;
+    }
+}
+
+/* Slime Shine Move 2 - 240 frames */
+@keyframes slimeShineMove2 {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.85;
+    }
+    33% {
+        transform: translate(-2px, 1px) scale(1.08);
+        opacity: 0.95;
+    }
+    66% {
+        transform: translate(-1px, 2px) scale(1.04);
+        opacity: 0.9;
+    }
+}
+
+/* Slime Shine Move 3 - 240 frames */
+@keyframes slimeShineMove3 {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.7;
+    }
+    40% {
+        transform: translate(1px, -1px) scale(1.15);
+        opacity: 0.85;
+    }
+    80% {
+        transform: translate(2px, 0) scale(1.05);
+        opacity: 0.75;
+    }
+}
+
+/* Slime Blink - 240 frames */
+@keyframes slimeBlink {
+    0%, 90%, 100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    93% {
+        transform: scaleY(0.1);
+        opacity: 0.8;
+    }
+    96% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+/* Slime Eye Wiggle - 180 frames */
+@keyframes slimeEyeWiggle {
+    0%, 100% {
+        transform: rotate(0deg) translateX(0);
+    }
+    25% {
+        transform: rotate(2deg) translateX(0.5px);
+    }
+    50% {
+        transform: rotate(-2deg) translateX(-0.5px);
+    }
+    75% {
+        transform: rotate(1deg) translateX(0.3px);
+    }
+}
+
+/* Slime Pupil Move - 360 frames */
+@keyframes slimePupilMove {
+    0%, 100% {
+        transform: translate(-50%, -50%);
+    }
+    16% {
+        transform: translate(-55%, -48%);
+    }
+    33% {
+        transform: translate(-45%, -52%);
+    }
+    50% {
+        transform: translate(-50%, -50%);
+    }
+    66% {
+        transform: translate(-48%, -47%);
+    }
+    83% {
+        transform: translate(-52%, -53%);
+    }
+}
+
+/* Slime Eye Shine Glow - 120 frames */
+@keyframes slimeEyeShineGlow {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(0.9);
+    }
+}
+
+/* Slime Mouth Talk - 180 frames */
+@keyframes slimeMouthTalk {
+    0%, 100% {
+        transform: translateX(-50%) scaleY(1);
+    }
+    33% {
+        transform: translateX(-50%) scaleY(1.1);
+    }
+    66% {
+        transform: translateX(-50%) scaleY(0.95);
+    }
+}
+
+/* Slime Mouth Smile - 300 frames */
+@keyframes slimeMouthSmile {
+    0%, 100% {
+        border-radius: 0 0 20px 20px;
+        width: 28px;
+    }
+    20% {
+        border-radius: 0 0 22px 22px;
+        width: 30px;
+    }
+    40% {
+        border-radius: 0 0 25px 25px;
+        width: 32px;
+    }
+    60% {
+        border-radius: 0 0 22px 22px;
+        width: 30px;
+    }
+    80% {
+        border-radius: 0 0 20px 20px;
+        width: 28px;
+    }
+}
+
+/* Slime Shadow Pulse - 180 frames */
+@keyframes slimeShadowPulse {
+    0%, 100% {
+        opacity: 0.4;
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translateX(-50%) scale(1.1);
+    }
+}
+
+/* Slime Shadow Move - 240 frames */
+@keyframes slimeShadowMove {
+    0%, 100% {
+        width: 70px;
+        filter: blur(4px);
+    }
+    33% {
+        width: 75px;
+        filter: blur(5px);
+    }
+    66% {
+        width: 72px;
+        filter: blur(4.5px);
+    }
+}
+
+/* Particle Float - 180 frames */
+@keyframes particleFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Bubble Float - 120 frames */
+@keyframes bubbleFloat {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        transform: translateX(-50%) translateY(-3px);
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - ALL DEVICES
+   ============================================ */
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .tech-buddy-container {
+        width: 90px;
+        height: 110px;
+    }
+    
+    .slime-body {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .slime-eye {
+        width: 20px;
+        height: 22px;
+    }
+    
+    .speech-bubble {
+        font-size: 11px;
+        max-width: 190px;
+        padding: 9px 14px;
+    }
+}
+
+/* Large Mobile (600px - 767px) */
+@media (min-width: 600px) and (max-width: 767px) {
+    .tech-buddy-container {
+        width: 85px;
+        height: 105px;
+    }
+    
+    .slime-body {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .slime-eye {
+        width: 18px;
+        height: 20px;
+    }
+    
+    .slime-eyes {
+        width: 52px;
+    }
+    
+    .speech-bubble {
+        font-size: 11px;
+        max-width: 180px;
+        padding: 8px 12px;
+        top: -55px;
+    }
+}
+
+/* Medium Mobile (480px - 599px) */
+@media (min-width: 480px) and (max-width: 599px) {
+    .tech-buddy-container {
+        width: 75px;
+        height: 95px;
+    }
+    
+    .slime-body {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .slime-eye {
+        width: 16px;
+        height: 18px;
+    }
+    
+    .slime-eyes {
+        width: 48px;
+    }
+    
+    .slime-pupil {
+        width: 8px;
+        height: 10px;
+    }
+    
+    .slime-mouth {
+        width: 24px;
+        height: 12px;
+    }
+    
+    .slime-shine-1 {
+        width: 20px;
+        height: 16px;
+    }
+    
+    .slime-shine-2 {
+        width: 12px;
+        height: 10px;
+    }
+    
+    .slime-shine-3 {
+        width: 8px;
+        height: 6px;
+    }
+    
+    .slime-shadow {
+        width: 60px;
+        height: 10px;
+    }
+    
+    .speech-bubble {
+        font-size: 10px;
+        max-width: 160px;
+        padding: 7px 10px;
+        top: -50px;
+    }
+}
+
+/* Standard Mobile (375px - 479px) */
+@media (min-width: 375px) and (max-width: 479px) {
+    .tech-buddy-container {
+        width: 65px;
+        height: 85px;
+    }
+    
+    .slime-body {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .slime-eye {
+        width: 14px;
+        height: 16px;
+    }
+    
+    .slime-eyes {
+        width: 42px;
+    }
+    
+    .slime-pupil {
+        width: 7px;
+        height: 9px;
+    }
+    
+    .slime-eye-shine {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .slime-mouth {
+        width: 20px;
+        height: 10px;
+        border-width: 2px;
+    }
+    
+    .slime-shine-1 {
+        width: 18px;
+        height: 14px;
+    }
+    
+    .slime-shine-2 {
+        width: 10px;
+        height: 8px;
+    }
+    
+    .slime-shine-3 {
+        width: 6px;
+        height: 5px;
+    }
+    
+    .slime-shadow {
+        width: 50px;
+        height: 8px;
+        bottom: -12px;
+    }
+    
+    .tech-particle {
+        width: 4px;
+        height: 4px;
+    }
+    
+    .speech-bubble {
+        font-size: 9px;
+        max-width: 140px;
+        padding: 6px 9px;
+        top: -45px;
+        border-radius: 12px;
+    }
+    
+    .speech-bubble::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid rgba(8, 145, 178, 0.98);
+        bottom: -8px;
+    }
+}
+
+/* Small Mobile (320px - 374px) */
+@media (max-width: 374px) {
+    .tech-buddy-container {
+        width: 55px;
+        height: 75px;
+    }
+    
+    .slime-body {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .slime-eye {
+        width: 12px;
+        height: 14px;
+    }
+    
+    .slime-eyes {
+        width: 36px;
+        top: 32%;
+    }
+    
+    .slime-pupil {
+        width: 6px;
+        height: 8px;
+    }
+    
+    .slime-eye-shine {
+        width: 5px;
+        height: 5px;
+        top: 22%;
+        left: 28%;
+    }
+    
+    .slime-mouth {
+        width: 16px;
+        height: 8px;
+        border-width: 2px;
+        top: 55%;
+    }
+    
+    .slime-shine-1 {
+        width: 15px;
+        height: 12px;
+        top: 12%;
+        left: 22%;
+    }
+    
+    .slime-shine-2 {
+        width: 8px;
+        height: 7px;
+    }
+    
+    .slime-shine-3 {
+        width: 5px;
+        height: 4px;
+    }
+    
+    .slime-shadow {
+        width: 40px;
+        height: 6px;
+        bottom: -10px;
+    }
+    
+    .tech-particle {
+        width: 3px;
+        height: 3px;
+    }
+    
+    .speech-bubble {
+        font-size: 8px;
+        max-width: 120px;
+        padding: 5px 8px;
+        top: -40px;
+        border-radius: 10px;
+    }
+    
+    .speech-bubble::after {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid rgba(8, 145, 178, 0.98);
+        bottom: -6px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .tech-buddy-container:hover {
+        filter: none;
+    }
+    
+    .tech-buddy-container:active {
+        filter: drop-shadow(0 10px 25px rgba(34, 211, 238, 0.6));
+    }
+    
+    .tech-buddy-container:hover .slime-body {
+        animation: slimeBreathing 3s ease-in-out infinite,
+                   slimeFloat 4s ease-in-out infinite,
+                   slimeColorShift 10s ease-in-out infinite;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+    .tech-buddy-container {
+        width: 60px;
+        height: 80px;
+    }
+    
+    .slime-body {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .speech-bubble {
+        font-size: 9px;
+        max-width: 130px;
+        top: -40px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .tech-buddy-container,
+    .tech-buddy-container *,
+    .slime-body,
+    .slime-body *,
+    .slime-core,
+    .slime-shine,
+    .slime-eye,
+    .slime-pupil,
+    .slime-mouth,
+    .slime-shadow,
+    .tech-particle,
+    .speech-bubble {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ============================================
+   THEME COMPATIBILITY
+   ============================================ */
+
+/* Enhanced glow for dark backgrounds */
+.dark .tech-buddy-container:hover {
+    filter: drop-shadow(0 20px 50px rgba(34, 211, 238, 0.9));
+}
+
+.dark .slime-body::before {
+    box-shadow: 
+        0 15px 40px rgba(34, 211, 238, 0.8),
+        0 8px 20px rgba(103, 232, 249, 0.6),
+        inset 0 -12px 25px rgba(6, 182, 212, 0.4),
+        inset 0 12px 25px rgba(224, 242, 254, 0.5);
+}
+
+.dark .speech-bubble {
+    background: linear-gradient(135deg, 
+        rgba(34, 211, 238, 0.98) 0%,
+        rgba(6, 182, 212, 1) 100%
+    );
+    box-shadow: 
+        0 10px 30px rgba(6, 182, 212, 0.7),
+        0 0 40px rgba(34, 211, 238, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dark .speech-bubble::after {
+    border-top-color: rgba(6, 182, 212, 1);
+}
+
+/* ============================================
+   UTILITY STATES
+   ============================================ */
+
+/* Hidden state */
+.tech-buddy-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Visible state */
+.tech-buddy-container.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: scale(1);
+}
+
+/* ============================================
+   SPECIAL EFFECTS & ENHANCEMENTS
+   ============================================ */
+
+/* Glow effect on hover */
+.tech-buddy-container:hover .slime-body {
+    animation: slimeBreathing 3s ease-in-out infinite,
+               slimeFloat 4s ease-in-out infinite,
+               slimeColorShift 10s ease-in-out infinite,
+               slimeHoverGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes slimeHoverGlow {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.15);
+    }
+}
+
+/* Excited state - for special interactions */
+.slime-body.excited {
+    animation: slimeExcitedJump 0.6s ease-in-out,
+               slimeBreathing 3s ease-in-out infinite,
+               slimeFloat 4s ease-in-out infinite;
+}
+
+@keyframes slimeExcitedJump {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    30% {
+        transform: translateY(-20px) scale(1.1, 0.9);
+    }
+    50% {
+        transform: translateY(-30px) scale(0.95, 1.05);
+    }
+    70% {
+        transform: translateY(-15px) scale(1.05, 0.95);
+    }
+}
+
+/* Happy state - wider smile */
+.slime-mouth.happy {
+    animation: slimeMouthHappy 2s ease-in-out infinite,
+               slimeMouthTalk 3s ease-in-out infinite;
+}
+
+@keyframes slimeMouthHappy {
+    0%, 100% {
+        width: 32px;
+        border-radius: 0 0 25px 25px;
+    }
+    50% {
+        width: 36px;
+        border-radius: 0 0 30px 30px;
+    }
+}
+
+/* Sleepy state - droopy eyes */
+.slime-eye.sleepy {
+    animation: slimeSleepyBlink 3s ease-in-out infinite;
+}
+
+@keyframes slimeSleepyBlink {
+    0%, 40%, 100% {
+        transform: scaleY(0.4);
+    }
+    20%, 60% {
+        transform: scaleY(1);
+    }
+}

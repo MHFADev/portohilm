@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pemesanan Web | M Hilmi Portfolio</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'display': ['Plus Jakarta Sans', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#ecfeff',
+                            100: '#cffafe',
+                            200: '#a5f3fc',
+                            300: '#67e8f9',
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            700: '#0e7490',
+                            800: '#155e75',
+                            900: '#164e63'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0b 0%, #0f172a 50%, #0a0a0b 100%);
+            min-height: 100vh;
+        }
+        
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .glow-orb-1 { top: -200px; right: -200px; }
+        .glow-orb-2 { bottom: -200px; left: -200px; }
+        
+        .form-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .input-field {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #f1f5f9;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #06b6d4;
+            background: rgba(6, 182, 212, 0.05);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+        
+        .input-field::placeholder {
+            color: #64748b;
+        }
+        
+        .service-option input[type="radio"] {
+            display: none;
+        }
+        
+        .service-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .service-option input[type="radio"]:checked + label {
+            border-color: #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+        
+        .service-option label:hover {
+            border-color: rgba(6, 182, 212, 0.5);
+            background: rgba(6, 182, 212, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .service-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            color: white;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+        }
+        
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success-message {
+            display: none;
+            padding: 16px 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            color: #6ee7b7;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .error-message {
+            display: none;
+            padding: 16px 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            color: #fca5a5;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .label-text {
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .required-star {
+            color: #f87171;
+            margin-left: 4px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 20px;
+            padding-right: 48px;
+        }
+        
+        select.input-field option {
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+        
+        textarea.input-field {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        @media (max-width: 640px) {
+            .form-card {
+                margin: 16px;
+                padding: 24px !important;
+            }
+            
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            .service-option label {
+                padding: 16px 12px;
+            }
+            
+            .service-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-slate-100 antialiased">
+    <div class="grid-bg"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    
+    <nav class="fixed top-0 left-0 right-0 z-50">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between bg-slate-900/80 backdrop-blur-lg rounded-2xl px-6 py-3 border border-slate-700/50">
+                <a href="/" class="text-xl font-bold tracking-tight">
+                    <span class="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">MHFADEV</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="/#projects" class="text-sm font-medium text-slate-300 hover:text-primary-400 transition-colors">Proyek</a>
+                    <a href="/#contact" class="text-sm font-medium text-slate-300 hover:text-primary-400 transition-colors">Kontak</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 min-h-screen flex items-center justify-center py-24 px-4">
+        <div class="w-full max-w-2xl">
+            <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-primary-400 transition-colors mb-6 group fade-in">
+                <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                <span class="font-medium">Kembali ke Portfolio</span>
+            </a>
+            
+            <div class="form-card p-8 md:p-10 fade-in" style="animation-delay: 0.1s;">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/10 rounded-full text-primary-400 text-sm font-medium mb-4">
+                        <i class="fas fa-rocket"></i>
+                        <span>Mulai Proyek Baru</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">
+                        Pesan Website <span class="bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent">Impian Anda</span>
+                    </h1>
+                    <p class="text-slate-400 text-lg">
+                        Ceritakan kebutuhan Anda dan kami akan membantu mewujudkannya
+                    </p>
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Pesanan Anda berhasil dikirim! Kami akan segera menghubungi Anda.
+                </div>
+                
+                <div class="error-message" id="errorMessage"></div>
+
+                <form id="orderForm" method="POST">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="label-text" for="name">
+                                Nama Lengkap<span class="required-star">*</span>
+                            </label>
+                            <input type="text" id="name" name="name" class="input-field" placeholder="Masukkan nama lengkap" required>
+                        </div>
+                        <div>
+                            <label class="label-text" for="company">
+                                Nama Perusahaan / Brand<span class="required-star">*</span>
+                            </label>
+                            <input type="text" id="company" name="company" class="input-field" placeholder="Nama perusahaan atau brand" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="label-text" for="email">
+                                Email<span class="required-star">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" class="input-field" placeholder="email@example.com" required>
+                        </div>
+                        <div>
+                            <label class="label-text" for="phone">
+                                No. Telepon / WhatsApp<span class="required-star">*</span>
+                            </label>
+                            <input type="tel" id="phone" name="phone" class="input-field" placeholder="+62 81xxx xxxx" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="label-text">
+                            Jenis Layanan<span class="required-star">*</span>
+                        </label>
+                        <div class="service-grid grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="service-option">
+                                <input type="radio" id="service1" name="service" value="Website Landing Page" required>
+                                <label for="service1">
+                                    <div class="service-icon bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                                        <i class="fas fa-laptop"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Landing Page</span>
+                                </label>
+                            </div>
+                            <div class="service-option">
+                                <input type="radio" id="service2" name="service" value="Website E-Commerce">
+                                <label for="service2">
+                                    <div class="service-icon bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">E-Commerce</span>
+                                </label>
+                            </div>
+                            <div class="service-option">
+                                <input type="radio" id="service3" name="service" value="Website Portofolio">
+                                <label for="service3">
+                                    <div class="service-icon bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Portfolio</span>
+                                </label>
+                            </div>
+                            <div class="service-option">
+                                <input type="radio" id="service4" name="service" value="Web Aplikasi Custom">
+                                <label for="service4">
+                                    <div class="service-icon bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+                                        <i class="fas fa-code"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Custom App</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="label-text" for="budget">
+                                Budget<span class="required-star">*</span>
+                            </label>
+                            <select id="budget" name="budget" class="input-field" required>
+                                <option value="">Pilih range budget</option>
+                                <option value="< 2 Juta">Kurang dari Rp 2 Juta</option>
+                                <option value="2 - 5 Juta">Rp 2 - 5 Juta</option>
+                                <option value="5 - 10 Juta">Rp 5 - 10 Juta</option>
+                                <option value="10 - 25 Juta">Rp 10 - 25 Juta</option>
+                                <option value="> 25 Juta">Lebih dari Rp 25 Juta</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label-text" for="timeline">
+                                Timeline<span class="required-star">*</span>
+                            </label>
+                            <select id="timeline" name="timeline" class="input-field" required>
+                                <option value="">Pilih timeline</option>
+                                <option value="ASAP (1-2 minggu)">ASAP (1-2 minggu)</option>
+                                <option value="1 bulan">1 bulan</option>
+                                <option value="2-3 bulan">2-3 bulan</option>
+                                <option value="Fleksibel">Fleksibel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="label-text" for="description">
+                            Deskripsi Proyek<span class="required-star">*</span>
+                        </label>
+                        <textarea id="description" name="description" class="input-field" placeholder="Jelaskan detail proyek Anda: fitur yang dibutuhkan, target audiens, referensi desain, dan tujuan bisnis..." required></textarea>
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="label-text" for="additional">
+                            Informasi Tambahan
+                        </label>
+                        <textarea id="additional" name="additional" class="input-field" placeholder="Ada hal lain yang ingin Anda sampaikan? (opsional)" style="min-height: 80px;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-paper-plane"></i>
+                            Kirim Pesanan
+                        </span>
+                        <span class="btn-loading hidden" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <span>Mengirim...</span>
+                        </span>
+                    </button>
+                    
+                    <p class="text-center text-slate-500 text-sm mt-6">
+                        <i class="fas fa-lock mr-1"></i>
+                        Data Anda aman dan tidak akan dibagikan ke pihak ketiga
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById('orderForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+
+        function setLoading(isLoading) {
+            submitBtn.disabled = isLoading;
+            if (isLoading) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'flex';
+            } else {
+                btnText.style.display = 'flex';
+                btnLoading.style.display = 'none';
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            const serviceRadio = document.querySelector('input[name="service"]:checked');
+            if (!serviceRadio) {
+                errorMessage.textContent = 'Silakan pilih jenis layanan';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                company: document.getElementById('company').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                service: serviceRadio.value,
+                budget: document.getElementById('budget').value,
+                timeline: document.getElementById('timeline').value,
+                description: document.getElementById('description').value,
+                additional: document.getElementById('additional').value,
+                subject: 'Pemesanan Website Baru'
+            };
+
+            setLoading(true);
+
+            try {
+                const response = await fetch('/submit-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    form.reset();
+                    
+                    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 8000);
+                } else {
+                    errorMessage.textContent = data.message || 'Terjadi kesalahan saat mengirim pesanan.';
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Gagal mengirim pesanan. Silakan coba lagi.';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

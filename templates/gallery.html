@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M Hilmi | {{ data.title }}</title>
+    
+    <!-- Google Fonts - Professional Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/realistic-cat-mascot.css') }}">
+    
+    <!-- Elegant Gallery Styles -->
+    <style>
+        /* Professional Typography */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Elegant headings for specific sections */
+        .elegant-heading {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+        }
+        
+        .professional-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+        
+        /* Enhanced Shadow Effects */
+        .shadow-3xl {
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Elegant Card Animations */
+        .gallery-card {
+            position: relative;
+            overflow: visible;
+        }
+        
+        .gallery-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.1) 0%, 
+                rgba(147, 51, 234, 0.1) 50%, 
+                rgba(236, 72, 153, 0.1) 100%);
+            border-radius: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: -1;
+        }
+        
+        .gallery-card:hover::before {
+            opacity: 1;
+        }
+        
+        /* Smooth Spacing for Icons */
+        .pl-13 {
+            padding-left: 3.25rem;
+        }
+        
+        /* Elegant Section Hover Effects */
+        .elegant-section {
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+        }
+        
+        .elegant-section:hover {
+            transform: translateX(4px);
+        }
+        
+        /* Enhanced Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+            animation: zoomIn 0.4s ease;
+        }
+        
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Gradient Text Animation */
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+        
+        /* Smooth Tool Tag Animations */
+        .elegant-section span {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .elegant-section span:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Icon Container Animations */
+        .elegant-section .w-10 {
+            transition: all 0.3s ease;
+        }
+        
+        .elegant-section:hover .w-10 {
+            transform: rotate(5deg) scale(1.05);
+        }
+        
+        /* Responsive Improvements */
+        @media (max-width: 1024px) {
+            .pl-13 {
+                padding-left: 0;
+            }
+        }
+        
+        /* Custom Scrollbar for Elegant Look */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3b82f6, #9333ea);
+            border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+        
+        /* Dark mode scrollbar */
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'yin': '#000000',
+                        'yang': '#ffffff',
+                        'yin-soft': '#1a1a1a',
+                        'yang-soft': '#f8f8f8'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-yang dark:bg-yin text-yin dark:text-yang transition-all duration-500">
+    <!-- 3D Background Canvas -->
+    <canvas id="three-canvas" class="fixed inset-0 z-0" style="opacity: 0;"></canvas>
+
+    <!-- Background Elements -->
+    <div class="grid-pattern"></div>
+    
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-yang dark:bg-yin shadow-2xl flex items-center justify-center text-yin dark:text-yang hover:scale-110 transition-all duration-300">
+        <i class="fas fa-moon dark:hidden text-xl"></i>
+        <i class="fas fa-sun hidden dark:block text-xl"></i>
+    </button>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-yang/90 dark:bg-yin/90 backdrop-blur-md z-30 shadow-lg border-b border-gray-200 dark:border-gray-800">
+        <div class="container mx-auto px-4 sm:px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('index') }}" class="text-3xl font-bold gradient-text">MHFADEV</a>
+                <div class="hidden md:flex space-x-8">
+                    <a href="{{ url_for('index') }}" class="nav-link px-4 py-2">Kembali ke Portfolio</a>
+                </div>
+                <button id="mobile-menu-button" class="md:hidden text-yin dark:text-yang p-2">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-yang dark:bg-yin px-4 py-3 shadow-lg border-t border-gray-200 dark:border-gray-800">
+            <div class="flex flex-col space-y-3">
+                <a href="{{ url_for('index') }}" class="nav-link px-3 py-2">Kembali ke Portfolio</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16">
+        <!-- Gallery Header - Elegant Design -->
+        <section class="py-16 animate-fade-in-up relative overflow-hidden">
+            <!-- Decorative Background -->
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none"></div>
+            
+            <div class="container mx-auto px-4 sm:px-6 text-center relative z-10">
+                <div class="mb-6">
+                    <span class="inline-block px-6 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-400/10 dark:to-purple-400/10 text-blue-700 dark:text-blue-300 rounded-full text-sm font-bold uppercase tracking-wide mb-6 border border-blue-200/50 dark:border-blue-700/50 shadow-lg">
+                        <i class="fas fa-images mr-2"></i>Portfolio Gallery
+                    </span>
+                </div>
+                <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-yin via-yin/90 to-yin/80 dark:from-yang dark:via-yang/90 dark:to-yang/80 bg-clip-text text-transparent leading-tight">{{ data.title }}</h1>
+                <p class="text-xl sm:text-2xl text-yin/70 dark:text-yang/70 max-w-4xl mx-auto mb-8 leading-relaxed">
+                    {{ data.description }}
+                </p>
+                {% if data.summary %}
+                <div class="max-w-5xl mx-auto mt-10 p-8 bg-gradient-to-br from-yang via-yang to-yang-soft dark:from-yin dark:via-yin dark:to-yin-soft backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4 justify-center">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                                <i class="fas fa-info-circle text-white text-lg"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold">Ringkasan</h3>
+                        </div>
+                        <p class="text-yin/90 dark:text-yang/90 leading-relaxed text-lg">{{ data.summary }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Gallery Section - Elegant Design -->
+        <section class="py-12">
+            <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
+                <div class="space-y-12">
+                    {% for image in data.images %}
+                    <div class="gallery-card group bg-yang dark:bg-yin border border-gray-200/50 dark:border-gray-700/50 rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 animate-fade-in-up backdrop-blur-sm" style="animation-delay: {{ loop.index0 * 0.15 }}s;">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                            <!-- Image Section -->
+                            <div class="relative h-72 sm:h-96 lg:h-auto overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <img src="{{ image.url }}" 
+                                     alt="{{ image.title }}"
+                                     class="w-full h-full object-cover cursor-pointer transform group-hover:scale-110 transition-transform duration-700 ease-out"
+                                     onclick="openLightbox('{{ image.url }}')">
+                                <div class="absolute top-6 right-6 bg-gradient-to-br from-yin/90 to-yin/80 dark:from-yang/90 dark:to-yang/80 text-yang dark:text-yin px-5 py-2.5 rounded-full font-bold text-sm shadow-lg z-20 backdrop-blur-sm">
+                                    {{ loop.index }} / {{ data.images|length }}
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-yin/40 via-transparent to-transparent z-10"></div>
+                            </div>
+                            
+                            <!-- Content Section -->
+                            <div class="p-8 sm:p-10 lg:p-12 flex flex-col justify-between">
+                                <!-- Title and Description -->
+                                <div class="mb-8">
+                                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-400/10 dark:to-purple-400/10 text-blue-700 dark:text-blue-300 rounded-full text-sm font-semibold mb-4 border border-blue-200/50 dark:border-blue-700/50">
+                                        <i class="fas fa-user-tag"></i>
+                                        {{ image.role }}
+                                    </div>
+                                    <h2 class="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-yin to-yin/80 dark:from-yang dark:to-yang/80 bg-clip-text text-transparent leading-tight">{{ image.title }}</h2>
+                                    <p class="text-lg sm:text-xl text-yin/70 dark:text-yang/70 leading-relaxed mb-6">{{ image.description }}</p>
+                                </div>
+                                
+                                <!-- Detailed Information -->
+                                <div class="space-y-6">
+                                    <!-- Context -->
+                                    <div class="elegant-section group/section">
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                                                <i class="fas fa-book text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="text-sm font-bold text-yin/70 dark:text-yang/70 uppercase tracking-wider">Konteks</h4>
+                                        </div>
+                                        <p class="text-yin/80 dark:text-yang/80 leading-relaxed pl-13">{{ image.context }}</p>
+                                    </div>
+                                    
+                                    <!-- Tools Used -->
+                                    <div class="elegant-section">
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                                                <i class="fas fa-tools text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="text-sm font-bold text-yin/70 dark:text-yang/70 uppercase tracking-wider">Tools & Teknologi</h4>
+                                        </div>
+                                        <div class="flex flex-wrap gap-2.5 pl-13">
+                                            {% for tool in image.tools %}
+                                            <span class="px-4 py-2 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 text-yin dark:text-yang rounded-xl text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50">
+                                                {{ tool }}
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Outcome -->
+                                    <div class="elegant-section">
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                                                <i class="fas fa-trophy text-white text-sm"></i>
+                                            </div>
+                                            <h4 class="text-sm font-bold text-yin/70 dark:text-yang/70 uppercase tracking-wider">Hasil & Impact</h4>
+                                        </div>
+                                        <div class="pl-13 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/10 p-5 rounded-2xl border-l-4 border-green-500 shadow-inner">
+                                            <p class="text-yin/90 dark:text-yang/90 leading-relaxed font-medium">
+                                                {{ image.outcome }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Elegant Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <div class="absolute top-6 right-6 z-50">
+            <button class="close-lightbox w-14 h-14 rounded-full bg-yang/90 dark:bg-yin/90 backdrop-blur-md text-yin dark:text-yang hover:bg-yang dark:hover:bg-yin transition-all duration-300 shadow-2xl flex items-center justify-center text-2xl font-bold hover:scale-110 border border-gray-200 dark:border-gray-700" onclick="closeLightbox()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="lightbox-content p-4" onclick="event.stopPropagation()">
+            <img id="lightbox-image" src="" alt="" class="rounded-2xl shadow-2xl">
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/three-scene.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/realistic-cat-mascot.js') }}"></script>
+    
+    <script>
+        // Fade in Three.js canvas on page load
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('three-canvas');
+            if (canvas) {
+                setTimeout(() => {
+                    canvas.style.transition = 'opacity 1s ease-in';
+                    canvas.style.opacity = '1';
+                }, 300);
+            }
+        });
+
+        // Fade out Three.js canvas before page unload
+        window.addEventListener('beforeunload', () => {
+            const canvas = document.getElementById('three-canvas');
+            if (canvas) {
+                canvas.style.transition = 'opacity 0.5s ease-out';
+                canvas.style.opacity = '0';
+            }
+        });
+    </script>
+    
+    <script>
+        function openLightbox(imageSrc) {
+            document.getElementById('lightbox').style.display = 'flex';
+            document.getElementById('lightbox-image').src = imageSrc;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
