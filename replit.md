@@ -2,7 +2,15 @@
 
 This is a personal portfolio website for M Hilmi (MHFADEV), showcasing professional skills in web development and IT support. The portfolio features a modern, responsive design with dark/light theme support and includes dedicated gallery sections for coding projects and IT support activities. The application presents a comprehensive view of the developer's capabilities through interactive animations, 3D visual effects, and detailed project documentation.
 
-## Recent Changes (November 22, 2025)
+## Recent Changes (November 30, 2025)
+- **Replit Environment Setup**: Successfully imported and configured GitHub project for Replit environment
+- **Package Management**: Installed all Python dependencies using UV package manager (Flask, SendGrid, email-validator, etc.)
+- **Flask Configuration**: Configured Flask app to bind to 0.0.0.0:5000 with proxy header trust for Replit's iframe environment
+- **Workflow Setup**: Created Flask Server workflow running on port 5000 with webview output
+- **Deployment Configuration**: Set up production deployment using Gunicorn with autoscale deployment target
+- **Favicon Fix**: Moved favicon.png to static folder and updated template references
+
+## Previous Changes (November 22, 2025)
 - **700 New Mascot Expressions**: Added 700 entertaining Indonesian dialog variations across 10 mood categories (70 per mood: happy, excited, curious, playful, sleepy, sad, scared, sassy, spooky, coding)
 - **Cyber Jelly Personality**: Enhanced mascot personality with Gen Z slang, tsundere/manja/jail characteristics, featuring lucu (funny), gemas (cute), and ngeselin (endearing) expressions
 - **Cyan-Blue Jelly Design**: Transformed mascot from ball shape to jelly blob with cyan-blue gradient (#06b6d4, #22d3ee, #67e8f9, #a5f3fc) matching portfolio theme
