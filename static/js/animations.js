@@ -134,51 +134,60 @@ class AnimationController {
         }
         
         // Animate tech icons
-        gsap.utils.toArray('.tech-icon-item').forEach((icon, index) => {
-            gsap.from(icon, {
-                scrollTrigger: {
-                    trigger: icon,
-                    start: 'top 90%',
-                    toggleActions: 'play none none reverse'
-                },
-                opacity: 0,
-                scale: 0.5,
-                rotation: 45,
-                duration: 0.6,
-                ease: 'back.out(2)',
-                delay: index * 0.05
+        const techIcons = document.querySelectorAll('.tech-icon-item');
+        if (techIcons.length > 0) {
+            gsap.utils.toArray(techIcons).forEach((icon, index) => {
+                gsap.from(icon, {
+                    scrollTrigger: {
+                        trigger: icon,
+                        start: 'top 90%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    opacity: 0,
+                    scale: 0.5,
+                    rotation: 45,
+                    duration: 0.6,
+                    ease: 'back.out(2)',
+                    delay: index * 0.05
+                });
             });
-        });
+        }
         
         // Animate timeline items
-        gsap.utils.toArray('.timeline-item').forEach((item, index) => {
-            gsap.from(item, {
-                scrollTrigger: {
-                    trigger: item,
-                    start: 'top 85%',
-                    toggleActions: 'play none none reverse'
-                },
-                opacity: 0,
-                x: index % 2 === 0 ? -50 : 50,
-                duration: 0.8,
-                ease: 'power3.out'
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        if (timelineItems.length > 0) {
+            gsap.utils.toArray(timelineItems).forEach((item, index) => {
+                gsap.from(item, {
+                    scrollTrigger: {
+                        trigger: item,
+                        start: 'top 85%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    opacity: 0,
+                    x: index % 2 === 0 ? -50 : 50,
+                    duration: 0.8,
+                    ease: 'power3.out'
+                });
             });
-        });
+        }
         
         // Animate headings
-        gsap.utils.toArray('h2, h3').forEach(heading => {
-            gsap.from(heading, {
-                scrollTrigger: {
-                    trigger: heading,
-                    start: 'top 90%',
-                    toggleActions: 'play none none reverse'
-                },
-                opacity: 0,
-                y: 30,
-                duration: 0.8,
-                ease: 'power2.out'
+        const headings = document.querySelectorAll('h2, h3');
+        if (headings.length > 0) {
+            gsap.utils.toArray(headings).forEach(heading => {
+                gsap.from(heading, {
+                    scrollTrigger: {
+                        trigger: heading,
+                        start: 'top 90%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                });
             });
-        });
+        }
     }
 
     // Hover Animations with GSAP

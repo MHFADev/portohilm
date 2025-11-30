@@ -2,7 +2,16 @@
 
 This is a personal portfolio website for M Hilmi (MHFADEV), showcasing professional skills in web development and IT support. The portfolio features a modern, responsive design with dark/light theme support and includes dedicated gallery sections for coding projects and IT support activities. The application presents a comprehensive view of the developer's capabilities through interactive animations, 3D visual effects, and detailed project documentation.
 
-## Recent Changes (November 30, 2025)
+## Recent Changes (November 30, 2025 - Latest)
+- **GSAP Animation Upgrade**: Integrated GSAP 3.12.2 with ScrollTrigger and ScrollToPlugin for professional-grade smooth animations
+- **Enhanced Visual Effects**: Updated CSS with modern glassmorphism effects, vibrant gradients, and improved backdrop filters for hero cards, badges, and UI cards
+- **Mascot Visibility Enhancement**: Increased mascot size from 100px to 120px with stronger glow effects (drop-shadow 0 20px 50px) and scale-on-hover animations
+- **Animation Safety Checks**: Added DOM element existence validation before GSAP animations to prevent "target not found" errors
+- **Page Load Animations**: Implemented smooth fade-in effects for hero sections, navigation links, badges, and buttons with stagger timing
+- **Scroll Reveal System**: Added ScrollTrigger-based animations for cards, tech icons, timeline items, and headings with reversible play actions
+- **Glassmorphism Design**: Enhanced UI with blur(30px) saturate(150%), gradient backgrounds, and inset box-shadows for depth
+
+## Recent Changes (November 30, 2025 - Earlier)
 - **Replit Environment Setup**: Successfully imported and configured GitHub project for Replit environment
 - **Package Management**: Installed all Python dependencies using UV package manager (Flask, SendGrid, email-validator, etc.)
 - **Flask Configuration**: Configured Flask app to bind to 0.0.0.0:5000 with proxy header trust for Replit's iframe environment
