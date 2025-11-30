@@ -1,4 +1,14 @@
-// Animation Controller
+// Register GSAP plugins
+if (typeof gsap !== 'undefined') {
+    if (typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
+    }
+    if (typeof ScrollToPlugin !== 'undefined') {
+        gsap.registerPlugin(ScrollToPlugin);
+    }
+}
+
+// Enhanced Animation Controller with GSAP
 class AnimationController {
     constructor() {
         this.isMobile = this.detectMobile();
@@ -14,25 +24,219 @@ class AnimationController {
     detectLowEndDevice() {
         const memory = navigator.deviceMemory || 4;
         const cores = navigator.hardwareConcurrency || 4;
-        return memory < 4 || cores <= 2 || this.isMobile;
+        return memory < 4 || cores <= 2;
     }
 
     init() {
+        console.log('🎬 Initializing Enhanced Animations...');
+        
+        // Core animations
         this.setupThemeToggle();
         this.setupMobileMenu();
-        this.setupScrollAnimations();
-        this.setupSkillBars();
         this.setupSmoothScrolling();
         
-        if (!this.isMobile) {
+        // Enhanced GSAP animations
+        this.setupGSAPScrollAnimations();
+        this.setupPageLoadAnimations();
+        this.setupHoverAnimations();
+        this.setupSkillBars();
+        
+        if (!this.isMobile && typeof gsap !== 'undefined') {
             this.setupParallaxEffects();
-            this.setupFloatingParticles();
-            this.setupTechIconAnimations();
-            this.setupAdvancedAnimations();
-            this.startAnimationLoop();
-        } else {
-            this.setupInteractiveElements();
+            this.setupAdvancedGSAPAnimations();
+            this.setupMagneticButtons();
         }
+        
+        // Floating particles (lightweight)
+        if (!this.isLowEndDevice) {
+            this.setupFloatingParticles();
+        }
+        
+        console.log('✅ Enhanced Animations initialized!');
+    }
+
+    // Page Load Animations with GSAP
+    setupPageLoadAnimations() {
+        if (typeof gsap === 'undefined') return;
+        
+        // Fade in hero section
+        gsap.from('.hero-card', {
+            opacity: 0,
+            y: 50,
+            duration: 1,
+            ease: 'power3.out',
+            delay: 0.2
+        });
+        
+        // Stagger navigation items
+        gsap.from('.nav-link', {
+            opacity: 0,
+            y: -20,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power2.out'
+        });
+        
+        // Fade in hero badge
+        gsap.from('.hero-badge', {
+            opacity: 0,
+            scale: 0.8,
+            duration: 0.8,
+            ease: 'back.out(1.7)',
+            delay: 0.4
+        });
+        
+        // Fade in buttons with stagger
+        gsap.from('.interactive-btn', {
+            opacity: 0,
+            y: 30,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: 'power3.out',
+            delay: 0.6
+        });
+    }
+
+    // Enhanced Scroll Animations with GSAP ScrollTrigger
+    setupGSAPScrollAnimations() {
+        if (typeof gsap === 'undefined') return;
+        
+        // Animate all cards
+        gsap.utils.toArray('.skills-card, .info-card, .ai-tool-card, .project-card').forEach((card, index) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    end: 'top 65%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 0,
+                y: 60,
+                duration: 0.8,
+                ease: 'power3.out',
+                delay: index * 0.1
+            });
+        });
+        
+        // Animate tech icons
+        gsap.utils.toArray('.tech-icon-item').forEach((icon, index) => {
+            gsap.from(icon, {
+                scrollTrigger: {
+                    trigger: icon,
+                    start: 'top 90%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 0,
+                scale: 0.5,
+                rotation: 45,
+                duration: 0.6,
+                ease: 'back.out(2)',
+                delay: index * 0.05
+            });
+        });
+        
+        // Animate timeline items
+        gsap.utils.toArray('.timeline-item').forEach((item, index) => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 0,
+                x: index % 2 === 0 ? -50 : 50,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+        });
+        
+        // Animate headings
+        gsap.utils.toArray('h2, h3').forEach(heading => {
+            gsap.from(heading, {
+                scrollTrigger: {
+                    trigger: heading,
+                    start: 'top 90%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                ease: 'power2.out'
+            });
+        });
+    }
+
+    // Hover Animations with GSAP
+    setupHoverAnimations() {
+        if (typeof gsap === 'undefined') return;
+        
+        // Interactive buttons
+        document.querySelectorAll('.interactive-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                gsap.to(btn, {
+                    scale: 1.05,
+                    y: -4,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, {
+                    scale: 1,
+                    y: 0,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+        });
+        
+        // Cards hover
+        document.querySelectorAll('.skills-card, .info-card, .ai-tool-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                gsap.to(card, {
+                    y: -8,
+                    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    y: 0,
+                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+        });
+        
+        // Tech icons
+        document.querySelectorAll('.tech-icon-item').forEach(icon => {
+            icon.addEventListener('mouseenter', () => {
+                gsap.to(icon, {
+                    scale: 1.15,
+                    rotation: 5,
+                    duration: 0.4,
+                    ease: 'back.out(2)'
+                });
+                
+                // Sparkle effect
+                if (!this.isLowEndDevice) {
+                    this.createSparkles(icon);
+                }
+            });
+            
+            icon.addEventListener('mouseleave', () => {
+                gsap.to(icon, {
+                    scale: 1,
+                    rotation: 0,
+                    duration: 0.4,
+                    ease: 'power2.out'
+                });
+            });
+        });
     }
 
     // Theme Toggle Animation
@@ -40,7 +244,6 @@ class AnimationController {
         const themeToggle = document.getElementById('theme-toggle');
         const html = document.documentElement;
 
-        // Check for saved theme preference or default to 'dark'
         const savedTheme = localStorage.getItem('theme') || 'dark';
         html.classList.toggle('dark', savedTheme === 'dark');
 
@@ -49,15 +252,27 @@ class AnimationController {
             const isDark = html.classList.contains('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             
-            // Add animation to theme toggle button
-            themeToggle.style.transform = 'scale(0.8) rotate(180deg)';
-            setTimeout(() => {
-                themeToggle.style.transform = 'scale(1) rotate(0deg)';
-            }, 200);
+            // GSAP animation for theme toggle
+            if (typeof gsap !== 'undefined') {
+                gsap.to(themeToggle, {
+                    rotation: 360,
+                    scale: 0.8,
+                    duration: 0.4,
+                    ease: 'back.out(2)',
+                    onComplete: () => {
+                        gsap.to(themeToggle, {
+                            rotation: 0,
+                            scale: 1,
+                            duration: 0.3,
+                            ease: 'power2.out'
+                        });
+                    }
+                });
+            }
         });
     }
 
-    // 3. Mobile Menu Animation
+    // Mobile Menu Animation
     setupMobileMenu() {
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -67,69 +282,82 @@ class AnimationController {
             
             if (isHidden) {
                 mobileMenu.classList.remove('hidden');
-                mobileMenu.style.maxHeight = '0px';
-                mobileMenu.style.opacity = '0';
                 
-                // Animate in
-                requestAnimationFrame(() => {
-                    mobileMenu.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
-                    mobileMenu.style.maxHeight = '300px';
+                if (typeof gsap !== 'undefined') {
+                    gsap.fromTo(mobileMenu, 
+                        { 
+                            opacity: 0, 
+                            height: 0 
+                        },
+                        { 
+                            opacity: 1, 
+                            height: 'auto', 
+                            duration: 0.4, 
+                            ease: 'power2.out' 
+                        }
+                    );
+                } else {
                     mobileMenu.style.opacity = '1';
-                });
+                }
             } else {
-                // Animate out
-                mobileMenu.style.maxHeight = '0px';
-                mobileMenu.style.opacity = '0';
-                setTimeout(() => {
+                if (typeof gsap !== 'undefined') {
+                    gsap.to(mobileMenu, {
+                        opacity: 0,
+                        height: 0,
+                        duration: 0.3,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            mobileMenu.classList.add('hidden');
+                        }
+                    });
+                } else {
                     mobileMenu.classList.add('hidden');
-                }, 300);
+                }
             }
         });
     }
 
-    // 4. Scroll-triggered Animations
-    setupScrollAnimations() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in-up');
-                    entry.target.style.animationDelay = `${Math.random() * 0.5}s`;
-                }
-            });
-        }, observerOptions);
-
-        // Observe elements for scroll animations
-        document.querySelectorAll('.animate-section, .info-card, .project-card, .timeline-item, .gallery-item').forEach(el => {
-            observer.observe(el);
-        });
-    }
-
-    // 5. Skill Bars Animation
+    // Skill Bars Animation with GSAP
     setupSkillBars() {
         const skillBars = document.querySelectorAll('.skill-bar');
         
-        const skillObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const skillBar = entry.target;
-                    const skillValue = skillBar.getAttribute('data-skill');
-                    
-                    setTimeout(() => {
-                        skillBar.style.width = skillValue + '%';
-                    }, 200);
-                }
-            });
-        }, { threshold: 0.5 });
-
-        skillBars.forEach(bar => skillObserver.observe(bar));
+        skillBars.forEach(bar => {
+            const skillValue = bar.getAttribute('data-skill');
+            
+            if (typeof gsap !== 'undefined') {
+                gsap.from(bar, {
+                    scrollTrigger: {
+                        trigger: bar,
+                        start: 'top 85%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    width: '0%',
+                    duration: 1.5,
+                    ease: 'power3.out',
+                    onComplete: () => {
+                        gsap.to(bar, {
+                            width: skillValue + '%',
+                            duration: 0.1
+                        });
+                    }
+                });
+            } else {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                bar.style.width = skillValue + '%';
+                            }, 200);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                observer.observe(bar);
+            }
+        });
     }
 
-    // 6. Smooth Scrolling
+    // Smooth Scrolling
     setupSmoothScrolling() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -137,71 +365,117 @@ class AnimationController {
                 const target = document.querySelector(this.getAttribute('href'));
                 
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(window, {
+                            scrollTo: target,
+                            duration: 1,
+                            ease: 'power3.inOut'
+                        });
+                    } else {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
                 }
             });
         });
     }
 
-    // 8. Parallax Effects - Desktop only
+    // Parallax Effects with GSAP
     setupParallaxEffects() {
-        if (this.isMobile) return;
+        if (typeof gsap === 'undefined') return;
         
-        const throttledParallax = this.throttle(() => {
-            const scrolled = window.pageYOffset;
-            const parallaxElements = document.querySelectorAll('.floating-3d-elements > *');
-            
-            parallaxElements.forEach((element, index) => {
-                const speed = 0.5 + (index * 0.1);
-                const yPos = -(scrolled * speed);
-                element.style.transform = `translateY(${yPos}px) rotateZ(${scrolled * 0.1}deg)`;
+        // Parallax for floating elements
+        gsap.utils.toArray('.floating-cube, .floating-sphere, .floating-pyramid').forEach((element, index) => {
+            gsap.to(element, {
+                y: 100,
+                rotation: 360,
+                scrollTrigger: {
+                    trigger: 'body',
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    scrub: 1 + (index * 0.5)
+                }
             });
-        }, 100);
+        });
         
-        window.addEventListener('scroll', throttledParallax, { passive: true });
-    }
-    
-    throttle(func, limit) {
-        let inThrottle;
-        return function(...args) {
-            if (!inThrottle) {
-                func.apply(this, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        };
+        // Parallax text effect
+        const heroText = document.querySelector('.hero-gradient-text');
+        if (heroText) {
+            gsap.to(heroText, {
+                y: 50,
+                scrollTrigger: {
+                    trigger: heroText,
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1
+                }
+            });
+        }
     }
 
-    // 9. Interactive Elements
-    setupInteractiveElements() {
-        // Add hover effects to interactive buttons
+    // Advanced GSAP Animations
+    setupAdvancedGSAPAnimations() {
+        if (typeof gsap === 'undefined') return;
+        
+        // Continuous floating animation for 3D elements
+        gsap.utils.toArray('.floating-cube, .floating-sphere, .floating-pyramid').forEach((element, index) => {
+            gsap.to(element, {
+                y: '+=20',
+                rotation: '+=10',
+                duration: 3 + index,
+                ease: 'sine.inOut',
+                repeat: -1,
+                yoyo: true
+            });
+        });
+        
+        // Pulse animation for badges
+        gsap.to('.hero-badge', {
+            scale: 1.05,
+            duration: 2,
+            ease: 'sine.inOut',
+            repeat: -1,
+            yoyo: true
+        });
+    }
+
+    // Magnetic Buttons Effect
+    setupMagneticButtons() {
+        if (this.isMobile || typeof gsap === 'undefined') return;
+        
         document.querySelectorAll('.interactive-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.transform = 'translateY(-2px) scale(1.02)';
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                gsap.to(btn, {
+                    x: x * 0.2,
+                    y: y * 0.2,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                });
             });
             
             btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translateY(0) scale(1)';
-            });
-        });
-
-        // Add click ripple effect
-        document.querySelectorAll('.interactive-btn, .project-card, .info-card').forEach(element => {
-            element.addEventListener('click', (e) => {
-                this.createRipple(e, element);
+                gsap.to(btn, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.5,
+                    ease: 'elastic.out(1, 0.5)'
+                });
             });
         });
     }
 
-    // 10. Floating Particles - Desktop only
+    // Floating Particles
     setupFloatingParticles() {
-        if (this.isMobile) return;
-        
         const particlesContainer = document.querySelector('.floating-particles');
-        const particleCount = this.isLowEndDevice ? 10 : 20;
+        if (!particlesContainer) return;
+        
+        const particleCount = this.isLowEndDevice ? 8 : 15;
         
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
@@ -210,313 +484,79 @@ class AnimationController {
                 position: absolute;
                 width: ${Math.random() * 4 + 2}px;
                 height: ${Math.random() * 4 + 2}px;
-                background: ${document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'};
+                background: ${document.documentElement.classList.contains('dark') ? 'rgba(6, 182, 212, 0.3)' : 'rgba(6, 182, 212, 0.2)'};
                 border-radius: 50%;
                 left: ${Math.random() * 100}%;
                 top: ${Math.random() * 100}%;
-                animation: float ${Math.random() * 10 + 5}s linear infinite;
-                animation-delay: ${Math.random() * 5}s;
+                pointer-events: none;
             `;
-            particlesContainer?.appendChild(particle);
+            
+            particlesContainer.appendChild(particle);
+            
+            if (typeof gsap !== 'undefined') {
+                gsap.to(particle, {
+                    y: -window.innerHeight,
+                    duration: Math.random() * 10 + 10,
+                    repeat: -1,
+                    ease: 'none',
+                    delay: Math.random() * 5
+                });
+                
+                gsap.to(particle, {
+                    x: Math.random() * 100 - 50,
+                    duration: Math.random() * 5 + 3,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut'
+                });
+            }
         }
     }
 
-    // 11. Ripple Effect
-    createRipple(event, element) {
-        const circle = document.createElement('span');
-        const diameter = Math.max(element.clientWidth, element.clientHeight);
-        const radius = diameter / 2;
-        
-        circle.style.width = circle.style.height = `${diameter}px`;
-        circle.style.left = `${event.clientX - element.offsetLeft - radius}px`;
-        circle.style.top = `${event.clientY - element.offsetTop - radius}px`;
-        circle.style.cssText += `
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0);
-            animation: ripple 0.6s linear;
-            pointer-events: none;
-        `;
-        
-        element.style.position = 'relative';
-        element.style.overflow = 'hidden';
-        element.appendChild(circle);
-        
-        setTimeout(() => {
-            circle.remove();
-        }, 600);
-    }
-
-    // 12. Animation Loop for Continuous Effects - Desktop only
-    startAnimationLoop() {
-        if (this.isMobile) return;
-        
-        let frameCount = 0;
-        const skipFrames = this.isLowEndDevice ? 2 : 0;
-        
-        const animate = () => {
-            frameCount++;
-            
-            if (skipFrames > 0 && frameCount % skipFrames !== 0) {
-                requestAnimationFrame(animate);
-                return;
-            }
-            
-            // Update floating elements
-            const floatingElements = document.querySelectorAll('.floating-cube, .floating-sphere, .floating-pyramid');
-            floatingElements.forEach((element, index) => {
-                const time = Date.now() * 0.001;
-                const offset = index * 2;
-                
-                const x = Math.sin(time + offset) * 10;
-                const y = Math.cos(time + offset) * 5;
-                const rotation = time * 20 + offset * 30;
-                
-                element.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
-            });
-            
-            // Update particle positions
-            document.querySelectorAll('.particle').forEach((particle, index) => {
-                const time = Date.now() * 0.0005;
-                const speed = 0.5 + (index % 3) * 0.3;
-                
-                let currentTop = parseFloat(particle.style.top) || 0;
-                currentTop -= speed;
-                
-                if (currentTop < -10) {
-                    currentTop = 110;
-                    particle.style.left = Math.random() * 100 + '%';
-                }
-                
-                particle.style.top = currentTop + '%';
-            });
-            
-            requestAnimationFrame(animate);
-        };
-        
-        animate();
-    }
-
-    // 13. Technology Icons Interactive Animations - Simplified on mobile
-    setupTechIconAnimations() {
-        if (this.isMobile) return;
-        
-        const techIcons = document.querySelectorAll('.tech-icon-item');
-        
-        techIcons.forEach((icon, index) => {
-            // Mouse enter animation
-            icon.addEventListener('mouseenter', () => {
-                const iconElement = icon.querySelector('i');
-                iconElement.style.transform = 'scale(1.2) rotate(10deg)';
-                iconElement.style.transition = 'transform 0.3s ease';
-                
-                if (!this.isLowEndDevice) {
-                    this.createSparkles(icon);
-                }
-            });
-            
-            // Mouse leave animation
-            icon.addEventListener('mouseleave', () => {
-                const iconElement = icon.querySelector('i');
-                iconElement.style.transform = 'scale(1) rotate(0deg)';
-            });
-            
-            // Click animation
-            icon.addEventListener('click', () => {
-                icon.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    icon.style.transform = '';
-                }, 150);
-                
-                if (!this.isLowEndDevice) {
-                    this.createTechRipple(icon);
-                }
-            });
-            
-            if (!this.isLowEndDevice) {
-                this.addFloatingAnimation(icon, index);
-            }
-        });
-    }
-
-    // 14. Advanced Animation Effects - Desktop only
-    setupAdvancedAnimations() {
-        if (this.isMobile) return;
-        
-        // Parallax text effect - throttled
-        const throttledTextParallax = this.throttle(() => {
-            const scrolled = window.pageYOffset;
-            const heroText = document.querySelector('.hero-gradient-text');
-            if (heroText) {
-                heroText.style.transform = `translateY(${scrolled * 0.1}px)`;
-            }
-        }, 100);
-        
-        window.addEventListener('scroll', throttledTextParallax, { passive: true });
-        
-        // Magnetic button effect - only on desktop
-        document.querySelectorAll('.interactive-btn').forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                
-                btn.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) scale(1.02)`;
-            });
-            
-            btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translate(0px, 0px) scale(1)';
-            });
-        });
-        
-        // Skill bars glow effect
-        if (!this.isLowEndDevice) {
-            document.querySelectorAll('.skill-item').forEach(item => {
-                item.addEventListener('mouseenter', () => {
-                    const skillBar = item.querySelector('.skill-bar');
-                    if (skillBar) {
-                        skillBar.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.3)';
-                        if (document.documentElement.classList.contains('dark')) {
-                            skillBar.style.boxShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
-                        }
-                    }
-                });
-                
-                item.addEventListener('mouseleave', () => {
-                    const skillBar = item.querySelector('.skill-bar');
-                    if (skillBar) {
-                        skillBar.style.boxShadow = '';
-                    }
-                });
-            });
-        }
-    }
-
-    // Create sparkle effect for tech icons
+    // Sparkle Effect
     createSparkles(element) {
         for (let i = 0; i < 5; i++) {
             const sparkle = document.createElement('div');
             sparkle.style.cssText = `
                 position: absolute;
-                width: 4px;
-                height: 4px;
-                background: gold;
+                width: 6px;
+                height: 6px;
+                background: linear-gradient(45deg, #06b6d4, #22d3ee);
                 border-radius: 50%;
                 pointer-events: none;
                 z-index: 1000;
-                animation: sparkle 1s ease-out forwards;
+                box-shadow: 0 0 10px #06b6d4;
             `;
             
             const rect = element.getBoundingClientRect();
-            sparkle.style.left = rect.left + Math.random() * rect.width + 'px';
-            sparkle.style.top = rect.top + Math.random() * rect.height + 'px';
+            sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+            sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
             
             document.body.appendChild(sparkle);
             
-            setTimeout(() => sparkle.remove(), 1000);
+            if (typeof gsap !== 'undefined') {
+                gsap.to(sparkle, {
+                    y: -50,
+                    x: (Math.random() - 0.5) * 50,
+                    opacity: 0,
+                    scale: 0,
+                    duration: 1,
+                    ease: 'power2.out',
+                    onComplete: () => sparkle.remove()
+                });
+            } else {
+                setTimeout(() => sparkle.remove(), 1000);
+            }
         }
-    }
-
-    // Create tech ripple effect
-    createTechRipple(element) {
-        const ripple = document.createElement('div');
-        ripple.style.cssText = `
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 215, 0, 0.6);
-            transform: scale(0);
-            animation: techRipple 0.8s ease-out;
-            pointer-events: none;
-            width: 100px;
-            height: 100px;
-            left: 50%;
-            top: 50%;
-            margin-left: -50px;
-            margin-top: -50px;
-        `;
-        
-        element.style.position = 'relative';
-        element.appendChild(ripple);
-        
-        setTimeout(() => ripple.remove(), 800);
-    }
-
-    // Add floating animation to tech icons
-    addFloatingAnimation(element, index) {
-        const animationDelay = index * 200;
-        const duration = 3000 + Math.random() * 2000;
-        
-        setInterval(() => {
-            const randomX = (Math.random() - 0.5) * 10;
-            const randomY = (Math.random() - 0.5) * 10;
-            const randomRotation = (Math.random() - 0.5) * 20;
-            
-            element.style.transition = 'transform 1s ease-in-out';
-            element.style.transform += ` translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg)`;
-            
-            setTimeout(() => {
-                element.style.transform = element.style.transform.replace(/translate\([^)]*\)/, '').replace(/rotate\([^)]*\)/, '');
-            }, 1000);
-        }, duration);
     }
 }
-
-// CSS for animations
-const animationStyles = document.createElement('style');
-animationStyles.textContent = `
-    @keyframes ripple {
-        to {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes techRipple {
-        to {
-            transform: scale(3);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes sparkle {
-        0% {
-            transform: scale(0) rotate(0deg);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1) rotate(180deg);
-            opacity: 0.8;
-        }
-        100% {
-            transform: scale(0) rotate(360deg);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes techFloat {
-        0%, 100% {
-            transform: translateY(0px) rotate(0deg);
-        }
-        25% {
-            transform: translateY(-5px) rotate(2deg);
-        }
-        50% {
-            transform: translateY(-10px) rotate(-1deg);
-        }
-        75% {
-            transform: translateY(-3px) rotate(1deg);
-        }
-    }
-`;
-document.head.appendChild(animationStyles);
 
 // Initialize animations when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new AnimationController();
 });
 
-// Additional utility functions
+// Utility functions
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -529,9 +569,7 @@ function debounce(func, wait) {
     };
 }
 
-// Performance optimization for scroll events
-const optimizedScrollHandler = debounce(() => {
-    // Scroll-based animations go here
-}, 16); // ~60fps
-
-window.addEventListener('scroll', optimizedScrollHandler);
+// Export for use in other scripts
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = AnimationController;
+}
