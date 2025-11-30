@@ -10,7 +10,11 @@ from sendgrid.helpers.mail import Mail
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
+app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+
+# Configure for Replit environment - trust proxy headers
+app.config['PREFERRED_URL_SCHEME'] = 'https'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 def get_sendgrid_credentials():
