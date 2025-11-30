@@ -60,63 +60,78 @@ class AnimationController {
         if (typeof gsap === 'undefined') return;
         
         // Fade in hero section
-        gsap.from('.hero-card', {
-            opacity: 0,
-            y: 50,
-            duration: 1,
-            ease: 'power3.out',
-            delay: 0.2
-        });
+        const heroCard = document.querySelector('.hero-card');
+        if (heroCard) {
+            gsap.from(heroCard, {
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                ease: 'power3.out',
+                delay: 0.2
+            });
+        }
         
         // Stagger navigation items
-        gsap.from('.nav-link', {
-            opacity: 0,
-            y: -20,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'power2.out'
-        });
+        const navLinks = document.querySelectorAll('.nav-link');
+        if (navLinks.length > 0) {
+            gsap.from(navLinks, {
+                opacity: 0,
+                y: -20,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: 'power2.out'
+            });
+        }
         
         // Fade in hero badge
-        gsap.from('.hero-badge', {
-            opacity: 0,
-            scale: 0.8,
-            duration: 0.8,
-            ease: 'back.out(1.7)',
-            delay: 0.4
-        });
+        const heroBadge = document.querySelector('.hero-badge');
+        if (heroBadge) {
+            gsap.from(heroBadge, {
+                opacity: 0,
+                scale: 0.8,
+                duration: 0.8,
+                ease: 'back.out(1.7)',
+                delay: 0.4
+            });
+        }
         
         // Fade in buttons with stagger
-        gsap.from('.interactive-btn', {
-            opacity: 0,
-            y: 30,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: 'power3.out',
-            delay: 0.6
-        });
+        const buttons = document.querySelectorAll('.interactive-btn');
+        if (buttons.length > 0) {
+            gsap.from(buttons, {
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: 'power3.out',
+                delay: 0.6
+            });
+        }
     }
 
     // Enhanced Scroll Animations with GSAP ScrollTrigger
     setupGSAPScrollAnimations() {
-        if (typeof gsap === 'undefined') return;
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
         
         // Animate all cards
-        gsap.utils.toArray('.skills-card, .info-card, .ai-tool-card, .project-card').forEach((card, index) => {
-            gsap.from(card, {
-                scrollTrigger: {
-                    trigger: card,
-                    start: 'top 85%',
-                    end: 'top 65%',
-                    toggleActions: 'play none none reverse'
-                },
-                opacity: 0,
-                y: 60,
-                duration: 0.8,
-                ease: 'power3.out',
-                delay: index * 0.1
+        const cards = document.querySelectorAll('.skills-card, .info-card, .ai-tool-card, .project-card');
+        if (cards.length > 0) {
+            gsap.utils.toArray(cards).forEach((card, index) => {
+                gsap.from(card, {
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top 85%',
+                        end: 'top 65%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    opacity: 0,
+                    y: 60,
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    delay: index * 0.1
+                });
             });
-        });
+        }
         
         // Animate tech icons
         gsap.utils.toArray('.tech-icon-item').forEach((icon, index) => {
