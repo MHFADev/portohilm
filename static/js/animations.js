@@ -326,6 +326,12 @@ function initScrollReveal() {
     const isMobile = window.innerWidth < 768;
     const yOffset = isMobile ? 30 : 55;
 
+    // Optimized ScrollTrigger defaults
+    ScrollTrigger.config({
+        limitCallbacks: true,
+        ignoreMobileResize: true
+    });
+
     // ── Section titles ──────────────────────────────────────
     gsap.utils.toArray('.section-title, [class*="text-center"] h2').forEach(el => {
         gsap.fromTo(el,
@@ -339,23 +345,8 @@ function initScrollReveal() {
                     start: 'top 92%',
                     end: 'bottom 8%',
                     toggleActions: 'play reverse play reverse',
-                    fastScrollEnd: true
-                }
-            }
-        );
-    });
-
-    // ── Small label above section titles ─────────────────────
-    gsap.utils.toArray('[class*="text-sm font-semibold text-accent-neon"]').forEach((el, i) => {
-        gsap.fromTo(el,
-            { y: 30, opacity: 0, letterSpacing: '0.5em' },
-            {
-                y: 0, opacity: 1, letterSpacing: '0.1em',
-                duration: 0.8, ease: 'power2.out',
-                scrollTrigger: {
-                    trigger: el,
-                    start: 'top 92%',
-                    toggleActions: 'play reverse play reverse'
+                    fastScrollEnd: true,
+                    scrub: false // Ensure no scrub on entrance for better FPS
                 }
             }
         );
@@ -384,16 +375,16 @@ function initScrollReveal() {
             }
         );
 
-        // Parallax Scroll Effect (Card moves slower than scroll)
+        // Parallax Scroll Effect - Optimized with lower intensity
         if (!isMobile) {
             gsap.to(card, {
-                y: -30, // Slight upward shift during scroll
+                y: -15, // Reduced from -30 for better performance
                 ease: "none",
                 scrollTrigger: {
                     trigger: card,
                     start: "top bottom",
                     end: "bottom top",
-                    scrub: true
+                    scrub: 0.5 // Smoothed scrub
                 }
             });
         }

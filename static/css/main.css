@@ -112,6 +112,7 @@ h1, h2, h3, p, span {
     -webkit-backface-visibility: hidden;
     transform-style: preserve-3d;
     perspective: 1000px;
+    will-change: transform, opacity;
 }
 
 /* Ensure no CSS transitions on elements GSAP will animate transforms */

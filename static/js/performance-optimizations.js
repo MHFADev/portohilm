@@ -134,22 +134,33 @@ function optimizeScroll() {
     
     let lastScroll = 0;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-    const throttleDelay = isMobile ? 150 : 100;
+    const throttleDelay = isMobile ? 100 : 50; // Reduced delay for smoother feel
     
-    const handleScroll = throttle(() => {
+    // Using requestAnimationFrame for scroll-based UI updates
+    let ticking = false;
+    
+    function updateNavbar() {
         const currentScroll = window.pageYOffset;
         
-        // Hide/show navbar on scroll
-        if (currentScroll > lastScroll && currentScroll > 100) {
+        // Hide/show navbar on scroll with smooth transitions
+        if (currentScroll > lastScroll && currentScroll > 150) {
             navbar.style.transform = 'translateY(-100%)';
+            navbar.style.opacity = '0';
         } else {
             navbar.style.transform = 'translateY(0)';
+            navbar.style.opacity = '1';
         }
         
         lastScroll = currentScroll;
-    }, throttleDelay);
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateNavbar);
+            ticking = true;
+        }
+    }, { passive: true });
     
     // Setup reveal on scroll ONCE - not on every scroll event
     setupRevealOnScroll();
@@ -344,10 +355,25 @@ function optimizeMemory() {
                 // Clean up any unused resources
                 const unusedElements = document.querySelectorAll('[data-cleanup="true"]');
                 unusedElements.forEach(el => el.remove());
+                
+                // Trigger garbage collection hints if possible
+                if (window.gc) window.gc();
             });
         }
     }, 60000); // Every minute
 }
+
+// Global throttle for high-frequency events
+const highFreqThrottle = (callback, delay = 16) => {
+    let lastCall = 0;
+    return (...args) => {
+        const now = performance.now();
+        if (now - lastCall >= delay) {
+            lastCall = now;
+            requestAnimationFrame(() => callback(...args));
+        }
+    };
+};
 
 // Request Animation Frame wrapper for smooth animations
 function smoothAnimation(callback) {
