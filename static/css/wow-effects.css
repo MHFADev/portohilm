@@ -1,0 +1,423 @@
+/* ═══════════════════════════════════════════════════════════════
+   WOW EFFECTS CSS — portohilm portfolio  (v3 — Calm & Advanced)
+   Smooth, premium, interactive micro-animations
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── CUSTOM PROPERTIES ─────────────────────────────────────── */
+:root {
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-back-out: cubic-bezier(0.34, 1.4, 0.64, 1);
+    --dur-fast: 0.18s;
+    --dur-base: 0.35s;
+    --dur-slow: 0.6s;
+    --dur-xslow: 0.9s;
+
+    --color-neon: #00f3ff;
+    --color-purple: #bc13fe;
+    --color-pink: #f472b6;
+
+    --glow-neon: 0 0 20px rgba(0, 243, 255, 0.3);
+    --glow-purple: 0 0 20px rgba(188, 19, 254, 0.3);
+}
+
+/* ─── ANIMATED KEYFRAMES ────────────────────────────────────── */
+@keyframes rotate-border {
+    to {
+        --angle: 360deg;
+    }
+}
+
+@keyframes float-gentle {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-12px) rotate(1.5deg);
+    }
+
+    66% {
+        transform: translateY(-6px) rotate(-1deg);
+    }
+
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(0, 243, 255, 0.2), 0 0 20px rgba(0, 243, 255, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 16px rgba(0, 243, 255, 0.5), 0 0 40px rgba(0, 243, 255, 0.2);
+    }
+}
+
+@keyframes breathe {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
+
+@keyframes slide-underline {
+    from {
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+
+    to {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+}
+
+@keyframes content-appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+    }
+}
+
+/* ─── ANIMATED GRADIENT BORDER (CONIC) ─────────────────────── */
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.glass-card {
+    position: relative;
+    transition:
+        box-shadow var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth),
+        background-color var(--dur-base) var(--ease-smooth);
+    will-change: transform, opacity;
+}
+
+.glass-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    background: conic-gradient(from var(--angle),
+            transparent 60%,
+            rgba(0, 243, 255, 0.6),
+            rgba(188, 19, 254, 0.4),
+            transparent);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-smooth);
+    animation: rotate-border 5s linear infinite;
+    animation-play-state: paused;
+}
+
+.glass-card:hover::after {
+    opacity: 1;
+    animation-play-state: running;
+}
+
+.glass-card:hover {
+    transform: translateY(-4px) scale(1.005);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 4px 20px rgba(0, 243, 255, 0.08);
+}
+
+/* ─── REVEAL ANIMATION CLASSES ──────────────────────────────── */
+/* These are set up by GSAP, but defined here for CSS fallback */
+.anim-fade {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-smooth),
+        transform var(--dur-slow) var(--ease-expo-out);
+}
+
+.anim-slide-up {
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.anim-slide-left {
+    opacity: 0;
+    transform: translateX(-40px);
+}
+
+.anim-slide-right {
+    opacity: 0;
+    transform: translateX(40px);
+}
+
+.anim-scale {
+    opacity: 0;
+    transform: scale(0.92);
+}
+
+.anim-visible {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* ─── SUBTLE SCANLINE (REDUCED) ─────────────────────────────── */
+body::before {
+    content: "";
+    display: block;
+    position: fixed;
+    inset: 0;
+    background:
+        linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.04) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
+    background-size: 100% 3px, 3px 100%;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* ─── SMOOTH NAV LINKS ──────────────────────────────────────── */
+.nav-link {
+    position: relative;
+    transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-neon), var(--color-purple));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-base) var(--ease-bounce);
+    border-radius: 999px;
+}
+
+.nav-link:hover::after {
+    transform: scaleX(1);
+}
+
+.nav-link:hover {
+    color: var(--color-neon);
+}
+
+/* ─── BUTTON: NEON MAGIC ────────────────────────────────────── */
+.btn-neon {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.12), rgba(0, 243, 255, 0.05));
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    color: var(--color-neon);
+    transition:
+        box-shadow var(--dur-base) var(--ease-smooth),
+        background var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth);
+}
+
+.btn-neon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.3), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-smooth);
+}
+
+.btn-neon:hover::before {
+    opacity: 1;
+}
+
+.btn-neon:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow:
+        0 8px 30px rgba(0, 243, 255, 0.25),
+        0 2px 8px rgba(0, 243, 255, 0.15),
+        0 0 0 1px rgba(0, 243, 255, 0.4) inset;
+    border-color: rgba(0, 243, 255, 0.7);
+}
+
+.btn-neon:active {
+    transform: translateY(-1px) scale(0.99);
+    transition-duration: 0.08s;
+}
+
+/* ─── SECTION DIVIDER GLOW ──────────────────────────────────── */
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.25), transparent);
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.15);
+    opacity: 0.7;
+    margin: 4rem auto;
+    border: none;
+}
+
+/* ─── SCROLL PROGRESS BAR ───────────────────────────────────── */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-neon) 0%, var(--color-purple) 50%, var(--color-pink) 100%);
+    z-index: 100000;
+    width: 0%;
+    box-shadow: 0 0 12px rgba(0, 243, 255, 0.6);
+    transition: width 0.1s linear;
+}
+
+/* ─── FLOATING ELEMENTS (SMOOTH) ────────────────────────────── */
+.floating-3d-elements div {
+    animation: float-gentle 9s ease-in-out infinite;
+}
+
+.floating-3d-elements div:nth-child(2) {
+    animation-delay: -3s;
+    animation-duration: 13s;
+}
+
+.floating-3d-elements div:nth-child(3) {
+    animation-delay: -6s;
+    animation-duration: 11s;
+}
+
+/* ─── TECH ICON HOVER ────────────────────────────────────────── */
+.tech-icon-item,
+.group[class*="flex-col items-center"] {
+    transition:
+        background var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth),
+        box-shadow var(--dur-base) var(--ease-smooth);
+}
+
+/* ─── SKILL BAR ─────────────────────────────────────────────── */
+.skill-bar {
+    transition: width 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.skill-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: skeleton-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+    from {
+        left: -100%;
+    }
+
+    to {
+        left: 100%;
+    }
+}
+
+/* ─── SECTION TITLE ─────────────────────────────────────────── */
+.section-title {
+    position: relative;
+}
+
+/* ─── TIMELINE ITEM ─────────────────────────────────────────── */
+.timeline-container .relative.pl-24 {
+    transition: transform var(--dur-base) var(--ease-smooth);
+}
+
+/* ─── IMAGE HOVER ────────────────────────────────────────────── */
+.group:hover img {
+    filter: contrast(1.05) brightness(1.06) saturate(1.1);
+    transition: filter var(--dur-slow) var(--ease-smooth);
+}
+
+/* ─── GLOW ANIMATION (passive, for decorative orbs) ─────────── */
+.animate-glow-pulse {
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* ─── CANVAS ─────────────────────────────────────────────────── */
+#three-canvas {
+    pointer-events: auto;
+    transition: opacity 0.5s ease;
+}
+
+/* ─── GLOBAL: SMOOTH INTERACTIVE ELEMENTS ───────────────────── */
+a,
+button {
+    transition:
+        color var(--dur-fast) var(--ease-smooth),
+        background var(--dur-fast) var(--ease-smooth),
+        opacity var(--dur-fast) var(--ease-smooth);
+}
+
+/* ─── REDUCED MOTION ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .anim-fade,
+    .anim-slide-up,
+    .anim-slide-left,
+    .anim-slide-right,
+    .anim-scale {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* ─── MOBILE: REDUCE HEAVY EFFECTS ─────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+    .glass-card:hover::after {
+        opacity: 0;
+    }
+
+    .glass-card:hover {
+        transform: none;
+    }
+
+    .btn-neon:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .glass-card:active {
+        transform: scale(0.98);
+    }
+
+    .btn-neon:active {
+        transform: scale(0.97);
+    }
+
+    body::before {
+        display: none;
+    }
+
+    /* Remove scanlines on mobile */
+}

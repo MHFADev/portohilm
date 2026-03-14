@@ -92,20 +92,20 @@ def gallery(gallery_type):
     gallery_data = {
         'coding': {
             'title':
-            'Album Sesi Coding',
+            'Development Showcase',
             'description':
-            'Dokumentasi visual dari perjalanan pengembangan web saya. Setiap gambar menceritakan proses belajar dan menciptakan solusi digital.',
+            'A curated collection of web development projects, from initial architecture to final deployment.',
             'summary':
-            'Perjalanan saya dalam menguasai web development, dari fundamental HTML/CSS hingga framework modern seperti React dan backend dengan Flask.',
+            'A comprehensive journey through modern web development, mastering frontend frameworks, backend systems, and performance engineering.',
             'images': [{
                 'url':
                 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
                 'title':
-                'Mengembangkan Website',
+                'Full-Stack Development',
                 'description':
-                'Proses coding menggunakan React.js',
+                'Building scalable web applications with React.js.',
                 'context':
-                'Membangun portfolio website interaktif dengan React.js untuk showcase skills dan projects. Fokus pada responsive design dan user experience.',
+                'Architecting high-performance web applications with focus on accessibility and user experience.',
                 'tools':
                 ['React.js', 'Tailwind CSS', 'Three.js', 'GSAP', 'Vite'],
                 'role':
@@ -116,11 +116,11 @@ def gallery(gallery_type):
                 'url':
                 'https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1064&q=80',
                 'title':
-                'Diskusi Solusi',
+                'Collaborative Problem Solving',
                 'description':
-                'Berdiskusi dengan teman tentang bug',
+                'Cross-functional team collaboration and technical troubleshooting.',
                 'context':
-                'Kolaborasi dengan sesama developer untuk troubleshoot complex bugs dalam aplikasi web. Sharing knowledge dan best practices dalam coding.',
+                'Collaborating with peers to resolve complex architecture challenges and optimize code quality through peer reviews.',
                 'tools': [
                     'Git/GitHub', 'VS Code Live Share', 'Discord',
                     'Chrome DevTools'
@@ -128,16 +128,16 @@ def gallery(gallery_type):
                 'role':
                 'Collaborative Developer',
                 'outcome':
-                'Berhasil resolve critical bugs dalam state management React. Belajar debugging techniques dan collaborative problem-solving yang efektif.'
+                'Successfully resolved critical state management issues. Enhanced technical leadership and collaborative problem-solving skills.'
             }, {
                 'url':
                 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
                 'title':
-                'Debugging Session',
+                'Performance Optimization',
                 'description':
-                'Menyelesaikan masalah kode kompleks',
+                'Optimizing critical rendering paths and bundle sizes.',
                 'context':
-                'Deep dive debugging session untuk optimize performance aplikasi web. Analyzing code, profiling, dan implementing solutions untuk reduce load time.',
+                'Deep dive into performance profiling and implementing code-splitting strategies.',
                 'tools': [
                     'Chrome DevTools', 'React DevTools', 'Lighthouse',
                     'webpack Bundle Analyzer'
@@ -147,6 +147,31 @@ def gallery(gallery_type):
                 'outcome':
                 'Mengurangi bundle size 35%, page load time dari 4.5s menjadi 1.8s. Implementasi code splitting dan lazy loading. First Contentful Paint improved 60%.'
             }]
+        },
+        'ict': {
+            'title': 'ICT & Infrastructure Gallery',
+            'description': 'Professional documentation of ICT projects, network management, and infrastructure solutions.',
+            'summary': 'Hands-on experience in managing enterprise-grade network infrastructure, hardware optimization, and systems administration.',
+            'images': [
+                {
+                    'url': 'https://images.unsplash.com/photo-1558494949-efc02570fbc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                    'title': 'Network Configuration',
+                    'description': 'Konfigurasi Switch dan Router',
+                    'context': 'Setup dan maintenance infrastruktur jaringan lokal (LAN) untuk memastikan konektivitas yang stabil.',
+                    'tools': ['Cisco Packet Tracer', 'Wireshark', 'Mikrotik'],
+                    'role': 'Network Administrator',
+                    'outcome': 'Jaringan stabil dengan uptime 99.9%, konfigurasi VLAN yang aman.'
+                },
+                {
+                    'url': 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
+                    'title': 'Hardware Maintenance',
+                    'description': 'Perbaikan dan upgrade server',
+                    'context': 'Melakukan maintenance rutin pada server fisik dan upgrade komponen hardware.',
+                    'tools': ['Server Rack', 'Thermal Paste', 'Diagnostic Tools'],
+                    'role': 'Hardware Technician',
+                    'outcome': 'Peningkatan performa server dan perpanjangan masa pakai hardware.'
+                }
+            ]
         }
     }
 
@@ -477,4 +502,4 @@ Pesan:
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)

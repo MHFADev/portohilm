@@ -1,536 +1,375 @@
-// Three.js 3D Background Scene
-class ThreeScene {
-    constructor() {
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.objects = [];
-        this.mouse = { x: 0, y: 0 };
-        this.animationFrameId = null;
-        this.isRunning = false;
-        this.isMobile = this.detectMobile();
-        this.isLowEndDevice = this.detectLowEndDevice();
-        this.init();
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('three-canvas');
+    if (!canvas) return;
 
-    detectMobile() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-               window.innerWidth < 768;
-    }
+    // --- STATE MANAGEMENT ---
+    window.introState = {
+        isActive: true,
+        assetsLoaded: false,
+        isFinished: false
+    };
 
-    detectLowEndDevice() {
-        const memory = navigator.deviceMemory || 4;
-        const cores = navigator.hardwareConcurrency || 4;
-        return memory < 4 || cores <= 2 || this.isMobile;
-    }
-
-    init() {
-        try {
-            this.setupScene();
-            this.setupCamera();
-            this.setupRenderer();
-            this.setupLights();
-            this.createObjects();
-            this.setupEventListeners();
-            this.isRunning = true;
-            this.animate();
-        } catch (error) {
-            console.warn('Three.js initialization failed, continuing without 3D elements:', error);
-            this.cleanup();
-        }
-    }
+    // --- SETUP ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     
-    destroy() {
-        this.isRunning = false;
-        if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
-        }
-        if (this.onResize) {
-            window.removeEventListener('resize', this.onResize);
-        }
-        if (this.onMouseMoveHandler) {
-            window.removeEventListener('mousemove', this.onMouseMoveHandler);
-        }
-        if (this.renderer) {
-            this.renderer.dispose();
-        }
-    }
+    // Initial Camera Position (Cinematic Extreme Close-up inside particle cloud)
+    camera.position.set(0, 0, 0.5); 
+    camera.rotation.z = Math.PI * 0.1; // Slight Dutch angle
 
-    cleanup() {
-        const canvas = document.getElementById('three-canvas');
-        if (canvas) {
-            canvas.style.display = 'none';
+    const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance"
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // --- NOISE FUNCTIONS (GLSL) ---
+    const noiseGLSL = `
+        // Simplex 3D Noise 
+        // by Ian McEwan, Ashima Arts
+        vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+        vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+
+        float snoise(vec3 v){ 
+            const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+            const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+
+            // First corner
+            vec3 i  = floor(v + dot(v, C.yyy) );
+            vec3 x0 = v - i + dot(i, C.xxx) ;
+
+            // Other corners
+            vec3 g = step(x0.yzx, x0.xyz);
+            vec3 l = 1.0 - g;
+            vec3 i1 = min( g.xyz, l.zxy );
+            vec3 i2 = max( g.xyz, l.zxy );
+
+            //  x0 = x0 - 0.0 + 0.0 * C 
+            vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+            vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+            vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
+
+            // Permutations
+            i = mod(i, 289.0 ); 
+            vec4 p = permute( permute( permute( 
+                        i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                    + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+                    + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+            // Gradients
+            // ( N=0.1.2.3 )
+            float n_ = 1.0/7.0; // N=7
+            vec3  ns = n_ * D.wyz - D.xzx;
+
+            vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,N*N)
+
+            vec4 x_ = floor(j * ns.z);
+            vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)
+
+            vec4 x = x_ *ns.x + ns.yyyy;
+            vec4 y = y_ *ns.x + ns.yyyy;
+            vec4 h = 1.0 - abs(x) - abs(y);
+
+            vec4 b0 = vec4( x.xy, y.xy );
+            vec4 b1 = vec4( x.zw, y.zw );
+
+            vec4 s0 = floor(b0)*2.0 + 1.0;
+            vec4 s1 = floor(b1)*2.0 + 1.0;
+            vec4 sh = -step(h, vec4(0.0));
+
+            vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+            vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+            vec3 p0 = vec3(a0.xy,h.x);
+            vec3 p1 = vec3(a0.zw,h.y);
+            vec3 p2 = vec3(a1.xy,h.z);
+            vec3 p3 = vec3(a1.zw,h.w);
+
+            //Normalise gradients
+            vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+            p0 *= norm.x;
+            p1 *= norm.y;
+            p2 *= norm.z;
+            p3 *= norm.w;
+
+            // Mix final noise value
+            vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+            m = m * m;
+            return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+                                        dot(p2,x2), dot(p3,x3) ) );
         }
-    }
 
-    setupScene() {
-        this.scene = new THREE.Scene();
-    }
+        // Curl Noise for more fluid-like motion
+        vec3 snoiseVec3( vec3 x ){
+            float s  = snoise(vec3( x ));
+            float s1 = snoise(vec3( x.y - 19.1 , x.z + 33.4 , x.x + 47.2 ));
+            float s2 = snoise(vec3( x.z + 74.2 , x.x - 124.5 , x.y + 99.4 ));
+            return vec3( s , s1 , s2 );
+        }
 
-    setupCamera() {
-        this.camera = new THREE.PerspectiveCamera(
-            75,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
+        vec3 curlNoise( vec3 p ){
+            const float e = .1;
+            vec3 dx = vec3( e   , 0.0 , 0.0 );
+            vec3 dy = vec3( 0.0 , e   , 0.0 );
+            vec3 dz = vec3( 0.0 , 0.0 , e   );
+
+            vec3 p_x0 = snoiseVec3( p - dx );
+            vec3 p_x1 = snoiseVec3( p + dx );
+            vec3 p_y0 = snoiseVec3( p - dy );
+            vec3 p_y1 = snoiseVec3( p + dy );
+            vec3 p_z0 = snoiseVec3( p - dz );
+            vec3 p_z1 = snoiseVec3( p + dz );
+
+            float x = p_y1.z - p_y0.z - p_z1.y + p_z0.y;
+            float y = p_z1.x - p_z0.x - p_x1.z + p_x0.z;
+            float z = p_x1.y - p_x0.y - p_y1.x + p_y0.x;
+
+            const float divisor = 1.0 / ( 2.0 * e );
+            return normalize( vec3( x , y , z ) * divisor );
+        }
+    `;
+
+    // --- LIQUID BALL SHADER ---
+    const vertexShader = `
+        uniform float uTime;
+        uniform vec2 uMouse;
+        uniform float uHover;
+        
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying float vDisplacement;
+
+        ${noiseGLSL}
+
+        void main() {
+            vUv = uv;
+            vec3 p = position;
+            float t = uTime * 0.4;
+            vec3 noisePos = p * 1.5 + vec3(t);
+            vec3 displacement = curlNoise(noisePos) * 0.4;
+            float detail = snoise(p * 4.0 + t * 2.0) * 0.1;
+            
+            // Mouse Interaction (Projected roughly)
+            vec3 mousePoint = vec3(uMouse.x * 5.0, uMouse.y * 5.0, 2.0); 
+            float dist = distance(p, mousePoint);
+            float attraction = smoothstep(3.0, 0.0, dist) * uHover;
+            vec3 dirToMouse = normalize(mousePoint - p);
+            
+            vec3 newPos = p + (normal * (displacement.x + detail) * 0.5);
+            newPos += dirToMouse * attraction * 0.8;
+            
+            vDisplacement = displacement.x + detail;
+            vNormal = normalize(normalMatrix * normal);
+            vPosition = (modelViewMatrix * vec4(newPos, 1.0)).xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+        }
+    `;
+
+    const fragmentShader = `
+        uniform float uTime;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        varying float vDisplacement;
+
+        void main() {
+            vec3 viewDir = normalize(-vPosition);
+            vec3 normal = normalize(vNormal);
+            float fresnel = clamp(1.0 - dot(viewDir, normal), 0.0, 1.0);
+            float rim = pow(fresnel, 2.5);
+
+            vec3 deepNavy = vec3(0.01, 0.05, 0.2);
+            vec3 neonBlue = vec3(0.0, 0.95, 1.0);
+            vec3 neonPurple = vec3(0.74, 0.07, 1.0);
+            
+            float glow = smoothstep(-0.2, 0.5, vDisplacement);
+            vec3 col = mix(deepNavy, neonPurple, glow * 0.5);
+            col = mix(col, neonBlue, rim);
+            
+            float specular = pow(max(0.0, dot(normal, normalize(vec3(1.0, 1.0, 1.0)))), 30.0);
+            col += vec3(1.0) * specular * 0.8;
+
+            gl_FragColor = vec4(col, 0.8 + rim * 0.2);
+        }
+    `;
+
+    // --- MESH CREATION ---
+    const geometry = new THREE.IcosahedronGeometry(1.5, 60);
+    const material = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            uTime: { value: 0 },
+            uMouse: { value: new THREE.Vector2(0, 0) },
+            uHover: { value: 0 }
+        },
+        transparent: true
+    });
+
+    const sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    // --- FLOATING GEOMETRY (3D Elements) ---
+    const floatingGroup = new THREE.Group();
+    scene.add(floatingGroup);
+
+    const geometries = [
+        new THREE.TetrahedronGeometry(0.5, 0),
+        new THREE.BoxGeometry(0.4, 0.4, 0.4),
+        new THREE.TorusGeometry(0.3, 0.1, 16, 32),
+        new THREE.OctahedronGeometry(0.4, 0)
+    ];
+
+    const shapes = [];
+    for (let i = 0; i < 12; i++) {
+        const geom = geometries[Math.floor(Math.random() * geometries.length)];
+        const mat = new THREE.MeshPhongMaterial({
+            color: i % 2 === 0 ? 0x00f3ff : 0xbc13fe,
+            transparent: true,
+            opacity: 0.6,
+            shininess: 100,
+            emissive: i % 2 === 0 ? 0x00f3ff : 0xbc13fe,
+            emissiveIntensity: 0.2
+        });
+        
+        const mesh = new THREE.Mesh(geom, mat);
+        
+        // Random position in 3D space
+        mesh.position.set(
+            (Math.random() - 0.5) * 15,
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 8 - 5
         );
-        this.camera.position.z = 2.5;
-    }
-
-    setupRenderer() {
-        const canvas = document.getElementById('three-canvas');
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: canvas,
-            alpha: true,
-            antialias: !this.isMobile
-        });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        const pixelRatio = this.isMobile ? 1 : Math.min(window.devicePixelRatio, 2);
-        this.renderer.setPixelRatio(pixelRatio);
-    }
-
-    setupLights() {
-        // Ambient light with cyan tint
-        const ambientLight = new THREE.AmbientLight(0x06b6d4, 0.6);
-        this.scene.add(ambientLight);
-
-        // Directional light
-        const directionalLight = new THREE.DirectionalLight(0x22d3ee, 0.8);
-        directionalLight.position.set(1, 1, 1);
-        directionalLight.castShadow = !this.isMobile;
-        this.scene.add(directionalLight);
         
-        if (!this.isMobile) {
-            // Point lights only on desktop - expensive on mobile
-            const pointLight1 = new THREE.PointLight(0x06b6d4, 1.5, 100);
-            pointLight1.position.set(5, 5, 5);
-            this.scene.add(pointLight1);
-            this.objects.push(pointLight1);
-            
-            const pointLight2 = new THREE.PointLight(0x0891b2, 1.2, 100);
-            pointLight2.position.set(-5, -5, 5);
-            this.scene.add(pointLight2);
-            this.objects.push(pointLight2);
-            
-            const pointLight3 = new THREE.PointLight(0x22d3ee, 1, 100);
-            pointLight3.position.set(0, 5, 3);
-            this.scene.add(pointLight3);
-            this.objects.push(pointLight3);
-        }
-    }
-
-    createObjects() {
-        // Create floating geometric shapes - reduced on mobile
-        this.createFloatingShapes();
-        this.createParticles();
-        // Skip expensive objects on mobile
-        if (!this.isMobile) {
-            this.createWaveform();
-            this.createYinYang3D();
-        }
-    }
-
-    createFloatingShapes() {
-        const allShapes = [
-            { geometry: new THREE.BoxGeometry(1.5, 1.5, 1.5), position: [-3, 1.5, 0], color: 0x06b6d4 },
-            { geometry: new THREE.SphereGeometry(1, 32, 32), position: [3, -0.5, 0.5], color: 0x0891b2 },
-            { geometry: new THREE.ConeGeometry(0.8, 1.6, 8), position: [-2.5, -1.5, 0.2], color: 0x22d3ee },
-            { geometry: new THREE.OctahedronGeometry(1.1), position: [2.5, 1, 0], color: 0x38bdf8 },
-            { geometry: new THREE.TorusGeometry(0.7, 0.25, 16, 32), position: [0, 2.5, 0.3], color: 0x06b6d4 },
-            { geometry: new THREE.TetrahedronGeometry(1), position: [-1.5, 0, 0.5], color: 0x0891b2 },
-            { geometry: new THREE.IcosahedronGeometry(0.9), position: [1.5, -2, 0.2], color: 0x22d3ee },
-            { geometry: new THREE.DodecahedronGeometry(0.8), position: [0, -0.5, 0.8], color: 0x38bdf8 },
-            { geometry: new THREE.TorusKnotGeometry(0.6, 0.2, 64, 8), position: [-3.5, -0.5, 0.3], color: 0x06b6d4 },
-            { geometry: new THREE.OctahedronGeometry(0.7), position: [3.5, 2, 0.5], color: 0x0891b2 }
-        ];
+        mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
         
-        // Mobile: only use 3 simple shapes, Desktop: use all 10 shapes
-        const shapes = this.isMobile ? allShapes.slice(0, 3) : allShapes;
-
-        shapes.forEach((shape, index) => {
-            const material = new THREE.MeshStandardMaterial({
-                color: shape.color,
-                opacity: 0.4,
-                transparent: true,
-                metalness: 0.6,
-                roughness: 0.3,
-                wireframe: true,
-                emissive: shape.color,
-                emissiveIntensity: 0.15
-            });
-
-            const mesh = new THREE.Mesh(shape.geometry, material);
-            mesh.position.set(...shape.position);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            mesh.userData = { 
-                originalPosition: [...shape.position],
-                rotationSpeed: {
-                    x: (Math.random() - 0.5) * 0.04,
-                    y: (Math.random() - 0.5) * 0.04,
-                    z: (Math.random() - 0.5) * 0.04
-                },
-                floatSpeed: Math.random() * 0.02 + 0.01,
-                floatOffset: index * Math.PI / 3,
-                scalePhase: index * 0.5,
-                baseColor: shape.color
-            };
-            
-            this.scene.add(mesh);
-            this.objects.push(mesh);
-        });
-    }
-
-    createParticles() {
-        const particleCount = this.isMobile ? 150 : (this.isLowEndDevice ? 800 : 1500);
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const sizes = new Float32Array(particleCount);
-
-        for (let i = 0; i < particleCount; i++) {
-            const i3 = i * 3;
-            
-            // Position - very close to camera for clarity
-            positions[i3] = (Math.random() - 0.5) * 12;
-            positions[i3 + 1] = (Math.random() - 0.5) * 12;
-            positions[i3 + 2] = (Math.random() - 0.5) * 8 - 1;
-
-            // Cyan gradient colors
-            const cyanVariant = Math.random();
-            colors[i3] = 0.0 + cyanVariant * 0.3;
-            colors[i3 + 1] = 0.6 + cyanVariant * 0.3;
-            colors[i3 + 2] = 0.8 + cyanVariant * 0.2;
-            
-            // Variable sizes
-            sizes[i] = Math.random() * 0.12 + 0.06;
-        }
-
-        const particleGeometry = new THREE.BufferGeometry();
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-        const particleMaterial = new THREE.PointsMaterial({
-            size: 0.1,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.5,
-            sizeAttenuation: true,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(particleGeometry, particleMaterial);
-        particles.userData = {
-            isParticles: true,
-            originalPositions: [...positions]
-        };
-        this.scene.add(particles);
-        this.objects.push(particles);
-    }
-
-    createWaveform() {
-        const waveGeometry = new THREE.PlaneGeometry(10, 10, 50, 50);
-        const positions = waveGeometry.attributes.position.array;
-        
-        // Store original positions for wave animation
-        waveGeometry.userData = { originalPositions: [...positions] };
-
-        const isDark = document.documentElement.classList.contains('dark');
-        const waveMaterial = new THREE.MeshLambertMaterial({
-            color: isDark ? 0xffffff : 0x000000,
-            opacity: 0.05,
-            transparent: true,
-            wireframe: true
-        });
-
-        const wave = new THREE.Mesh(waveGeometry, waveMaterial);
-        wave.rotation.x = -Math.PI / 4;
-        wave.position.z = -8;
-        
-        this.scene.add(wave);
-        this.objects.push(wave);
-    }
-
-    createYinYang3D() {
-        // Create main yin-yang circle
-        const yinYangGroup = new THREE.Group();
-        
-        // Yin side (black)
-        const yinGeometry = new THREE.CylinderGeometry(2, 2, 0.3, 32, 1, false, 0, Math.PI);
-        const yinMaterial = new THREE.MeshLambertMaterial({ 
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.8
-        });
-        const yinMesh = new THREE.Mesh(yinGeometry, yinMaterial);
-        yinMesh.rotation.y = Math.PI;
-        yinYangGroup.add(yinMesh);
-        
-        // Yang side (white)
-        const yangGeometry = new THREE.CylinderGeometry(2, 2, 0.3, 32, 1, false, 0, Math.PI);
-        const yangMaterial = new THREE.MeshLambertMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.8
-        });
-        const yangMesh = new THREE.Mesh(yangGeometry, yangMaterial);
-        yinYangGroup.add(yangMesh);
-        
-        // Small yin circle (white dot on black side)
-        const smallYinGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.31, 32);
-        const smallYinMaterial = new THREE.MeshLambertMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9
-        });
-        const smallYinMesh = new THREE.Mesh(smallYinGeometry, smallYinMaterial);
-        smallYinMesh.position.set(-1, 0, 0);
-        yinYangGroup.add(smallYinMesh);
-        
-        // Small yang circle (black dot on white side)
-        const smallYangGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.31, 32);
-        const smallYangMaterial = new THREE.MeshLambertMaterial({ 
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.9
-        });
-        const smallYangMesh = new THREE.Mesh(smallYangGeometry, smallYangMaterial);
-        smallYangMesh.position.set(1, 0, 0);
-        yinYangGroup.add(smallYangMesh);
-        
-        // Large yin semicircle (black on white side)
-        const largeYinGeometry = new THREE.CylinderGeometry(1, 1, 0.31, 32, 1, false, 0, Math.PI);
-        const largeYinMesh = new THREE.Mesh(largeYinGeometry, yinMaterial);
-        largeYinMesh.position.set(1, 0, 0);
-        largeYinMesh.rotation.y = Math.PI;
-        yinYangGroup.add(largeYinMesh);
-        
-        // Large yang semicircle (white on black side)
-        const largeYangGeometry = new THREE.CylinderGeometry(1, 1, 0.31, 32, 1, false, 0, Math.PI);
-        const largeYangMesh = new THREE.Mesh(largeYangGeometry, yangMaterial);
-        largeYangMesh.position.set(-1, 0, 0);
-        yinYangGroup.add(largeYangMesh);
-        
-        // Position the yin-yang in the background
-        yinYangGroup.position.set(0, 0, -10);
-        yinYangGroup.rotation.x = Math.PI / 2;
-        
-        // Store reference for animation
-        yinYangGroup.userData = {
-            isYinYang: true,
-            rotationSpeed: 0.005
+        // Custom properties for animation
+        mesh.userData = {
+            rotationSpeed: (Math.random() - 0.5) * 0.02,
+            floatSpeed: (Math.random() - 0.5) * 0.01,
+            originalY: mesh.position.y
         };
         
-        this.scene.add(yinYangGroup);
-        this.objects.push(yinYangGroup);
-        
-        // Create multiple smaller yin-yang symbols floating around
-        for (let i = 0; i < 3; i++) {
-            const smallYinYang = yinYangGroup.clone();
-            smallYinYang.scale.setScalar(0.3);
-            smallYinYang.position.set(
-                (Math.random() - 0.5) * 15,
-                (Math.random() - 0.5) * 10,
-                -15 + Math.random() * -5
-            );
-            smallYinYang.userData = {
-                isYinYang: true,
-                rotationSpeed: 0.01 + Math.random() * 0.02,
-                floatSpeed: 0.002 + Math.random() * 0.005,
-                floatOffset: i * Math.PI / 1.5,
-                originalPosition: [...smallYinYang.position.toArray()]
-            };
-            
-            this.scene.add(smallYinYang);
-            this.objects.push(smallYinYang);
-        }
+        floatingGroup.add(mesh);
+        shapes.push(mesh);
     }
 
-    setupEventListeners() {
-        // Mouse movement
-        this.onMouseMoveHandler = (event) => {
-            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        };
-        window.addEventListener('mousemove', this.onMouseMoveHandler);
+    // Add lights for the new shapes
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    
+    const pointLight = new THREE.PointLight(0x00f3ff, 2, 20);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
 
-        // Window resize
-        this.onResize = () => {
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-        };
-        window.addEventListener('resize', this.onResize);
+    const pointLight2 = new THREE.PointLight(0xbc13fe, 2, 20);
+    pointLight2.position.set(-5, -5, 5);
+    scene.add(pointLight2);
 
-        // Theme change
-        const themeToggle = document.getElementById('theme-toggle');
-        themeToggle?.addEventListener('click', () => {
-            setTimeout(() => {
-                this.updateThemeColors();
-            }, 100);
-        });
-    }
+    // --- BACKGROUND PARTICLES ---
+    const pGeo = new THREE.BufferGeometry();
+    const pCount = 400; // Increased for more depth
+    const pPos = new Float32Array(pCount * 3);
+    for(let i=0; i<pCount*3; i++) pPos[i] = (Math.random() - 0.5) * 25;
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    
+    // Create a circular texture for particles (bokeh effect)
+    const pCanvas = document.createElement('canvas');
+    pCanvas.width = 32;
+    pCanvas.height = 32;
+    const pCtx = pCanvas.getContext('2d');
+    const pGradient = pCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    pGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    pGradient.addColorStop(0.2, 'rgba(0, 243, 255, 0.8)');
+    pGradient.addColorStop(0.5, 'rgba(0, 243, 255, 0.2)');
+    pGradient.addColorStop(1, 'rgba(0, 243, 255, 0)');
+    pCtx.fillStyle = pGradient;
+    pCtx.fillRect(0, 0, 32, 32);
+    const pTexture = new THREE.CanvasTexture(pCanvas);
 
-    updateThemeColors() {
-        const isDark = document.documentElement.classList.contains('dark');
+    const pMat = new THREE.PointsMaterial({ 
+        size: 0.15, 
+        map: pTexture,
+        transparent: true, 
+        opacity: 0, // Start invisible for cinematic fade
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+    const particles = new THREE.Points(pGeo, pMat);
+    scene.add(particles);
+
+    // --- INTERACTION LOGIC ---
+    const mouse = new THREE.Vector2();
+    const targetMouse = new THREE.Vector2();
+    let hoverStrength = 0;
+    let targetHover = 0;
+
+    const onMouseMove = (e) => {
+        if (window.introState.isActive) return; // Disable mouse interaction during intro
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        const dist = Math.sqrt(mouse.x*mouse.x + mouse.y*mouse.y);
+        targetHover = (dist < 0.5) ? 1.0 - (dist * 2.0) : 0.0;
+    };
+    
+    window.addEventListener('mousemove', onMouseMove);
+    
+    // --- ANIMATION LOOP ---
+    const clock = new THREE.Clock();
+    
+    const animate = () => {
+        const time = clock.getElapsedTime();
         
-        this.objects.forEach(object => {
-            // Skip yin-yang objects as they should maintain their black/white colors
-            if (object.userData && object.userData.isYinYang) {
-                return;
-            }
-            
-            if (object.material) {
-                if (object.material.color) {
-                    object.material.color.setHex(isDark ? 0xffffff : 0x000000);
-                }
-                if (object.material.vertexColors && object.geometry.attributes.color) {
-                    const colors = object.geometry.attributes.color.array;
-                    const color = isDark ? 1 : 0;
-                    
-                    for (let i = 0; i < colors.length; i += 3) {
-                        colors[i] = color;
-                        colors[i + 1] = color;
-                        colors[i + 2] = color;
-                    }
-                    object.geometry.attributes.color.needsUpdate = true;
-                }
-            }
-        });
-    }
+        targetMouse.x += (mouse.x - targetMouse.x) * 0.05;
+        targetMouse.y += (mouse.y - targetMouse.y) * 0.05;
+        hoverStrength += (targetHover - hoverStrength) * 0.1;
 
-    animate() {
-        if (!this.isRunning) return;
-        this.animationFrameId = requestAnimationFrame(() => this.animate());
+        material.uniforms.uTime.value = time;
+        material.uniforms.uMouse.value.copy(targetMouse);
+        material.uniforms.uHover.value = hoverStrength;
 
-        const time = Date.now() * 0.001;
-        
-        if (this.isMobile && this.frameCount % 2 !== 0) {
-            this.frameCount = (this.frameCount || 0) + 1;
-            this.renderer.render(this.scene, this.camera);
-            return;
-        }
-        this.frameCount = (this.frameCount || 0) + 1;
+        sphere.rotation.y = time * 0.1;
+        particles.rotation.y = time * 0.05;
 
         // Animate floating shapes
-        this.objects.forEach((object, index) => {
-            // Skip lights and objects without userData
-            if (object.type === 'PointLight' || !object.userData) {
-                return;
-            }
-            
-            if (object.userData.rotationSpeed) {
-                // Rotation
-                object.rotation.x += object.userData.rotationSpeed.x;
-                object.rotation.y += object.userData.rotationSpeed.y;
-                object.rotation.z += object.userData.rotationSpeed.z;
-
-                // Floating movement
-                if (object.userData.originalPosition && Array.isArray(object.userData.originalPosition)) {
-                    const floatY = Math.sin(time * object.userData.floatSpeed + object.userData.floatOffset) * 0.8;
-                    const floatX = Math.cos(time * object.userData.floatSpeed * 0.5 + object.userData.floatOffset) * 0.3;
-                    object.position.y = object.userData.originalPosition[1] + floatY;
-                    object.position.x = object.userData.originalPosition[0] + floatX;
-                }
-
-                // Scale pulsing effect
-                if (object.userData.scalePhase !== undefined) {
-                    const scale = 1 + Math.sin(time * 0.5 + object.userData.scalePhase) * 0.15;
-                    object.scale.set(scale, scale, scale);
-                }
-
-                // Mouse interaction - very responsive following cursor
-                if (object.userData.originalPosition && Array.isArray(object.userData.originalPosition)) {
-                    const mouseInfluence = 1.2;
-                    const targetX = object.userData.originalPosition[0] + this.mouse.x * mouseInfluence;
-                    const targetY = object.userData.originalPosition[1] - this.mouse.y * mouseInfluence;
-                    object.position.x += (targetX - object.position.x) * 0.2;
-                    object.position.y += (targetY - object.position.y) * 0.2;
-                }
-                object.rotation.y += this.mouse.x * 0.05;
-                object.rotation.x += this.mouse.y * 0.05;
-            }
-
-            // Animate particles with wave effect
-            if (object.type === 'Points' && object.userData && object.userData.isParticles) {
-                object.rotation.y += 0.0008;
-                object.rotation.x += 0.0004;
-                
-                const positions = object.geometry.attributes.position.array;
-                const originalPositions = object.userData.originalPositions;
-                
-                for (let i = 0; i < positions.length; i += 3) {
-                    const x = originalPositions[i];
-                    const y = originalPositions[i + 1];
-                    const z = originalPositions[i + 2];
-                    
-                    // Wave effect on particles
-                    positions[i] = x + Math.sin(time * 0.5 + y * 0.3) * 0.2;
-                    positions[i + 1] = y + Math.cos(time * 0.3 + x * 0.3) * 0.2;
-                    positions[i + 2] = z + Math.sin(time * 0.4 + x * 0.2 + y * 0.2) * 0.1;
-                }
-                
-                object.geometry.attributes.position.needsUpdate = true;
-                
-                // Mouse interaction on particles
-                object.rotation.y += this.mouse.x * 0.005;
-                object.rotation.x += this.mouse.y * 0.005;
-            }
-
-            // Animate wave
-            if (object.geometry && object.geometry.userData && object.geometry.userData.originalPositions) {
-                const positions = object.geometry.attributes.position.array;
-                const originalPositions = object.geometry.userData.originalPositions;
-
-                for (let i = 0; i < positions.length; i += 3) {
-                    const x = originalPositions[i];
-                    const y = originalPositions[i + 1];
-                    
-                    positions[i + 2] = Math.sin((x + time) * 0.5) * Math.cos((y + time) * 0.5) * 0.1;
-                }
-                
-                object.geometry.attributes.position.needsUpdate = true;
-            }
-            
-            // Animate yin-yang symbols
-            if (object.userData && object.userData.isYinYang) {
-                // Main rotation
-                object.rotation.z += object.userData.rotationSpeed;
-                
-                // Floating movement for smaller yin-yangs
-                if (object.userData.floatSpeed && object.userData.originalPosition && Array.isArray(object.userData.originalPosition)) {
-                    const floatY = Math.sin(time * object.userData.floatSpeed + object.userData.floatOffset) * 2;
-                    const floatX = Math.cos(time * object.userData.floatSpeed * 0.7 + object.userData.floatOffset) * 1;
-                    
-                    object.position.x = object.userData.originalPosition[0] + floatX;
-                    object.position.y = object.userData.originalPosition[1] + floatY;
-                    
-                    // Additional rotation for smaller ones
-                    object.rotation.x += 0.002;
-                    object.rotation.y += 0.003;
-                }
-            }
+        shapes.forEach((mesh, i) => {
+            mesh.rotation.x += mesh.userData.rotationSpeed;
+            mesh.rotation.y += mesh.userData.rotationSpeed;
+            mesh.position.y = mesh.userData.originalY + Math.sin(time + i) * 0.2;
         });
 
-        // Camera movement based on mouse - disabled on mobile for performance
-        if (!this.isMobile) {
-            this.camera.position.x += (this.mouse.x * 1.5 - this.camera.position.x) * 0.15;
-            this.camera.position.y += (-this.mouse.y * 1.5 - this.camera.position.y) * 0.15;
-            this.camera.lookAt(this.scene.position);
+        // Intro Camera Logic is handled by GSAP externally, 
+        // but normal interaction happens here:
+        if (!window.introState.isActive) {
+            camera.position.x += (targetMouse.x * 0.8 - camera.position.x) * 0.05;
+            camera.position.y += (targetMouse.y * 0.8 - camera.position.y) * 0.05;
+            camera.lookAt(0, 0, 0);
+            
+            // Subtle tilt for the whole floating group
+            floatingGroup.rotation.y += (targetMouse.x * 0.1 - floatingGroup.rotation.y) * 0.05;
+            floatingGroup.rotation.x += (-targetMouse.y * 0.1 - floatingGroup.rotation.x) * 0.05;
         }
 
-        this.renderer.render(this.scene, this.camera);
-    }
-}
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    };
 
-// Initialize Three.js scene when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if WebGL is supported
-    if (window.THREE && window.WebGLRenderingContext) {
-        try {
-            new ThreeScene();
-        } catch (error) {
-            console.warn('Three.js scene could not be initialized:', error);
-        }
-    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- EXPOSE FOR CINEMATIC INTRO ---
+    window.threeScene = {
+        camera: camera,
+        sphere: sphere,
+        particles: particles
+    };
 });
