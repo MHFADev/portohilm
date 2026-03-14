@@ -23,8 +23,9 @@
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
 
-/* ─── REDUCED MOTION CHECK ─────────────────────────────────── */
+/* ─── REDUCED MOTION & MOBILE CHECK ─────────────────────────── */
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
 /* ══════════════════════════════════════════════════════════════
    GSAP PLUGIN REGISTRATION
@@ -39,7 +40,13 @@ function initCinematicIntro() {
     // Initial state: Hide everything before animation starts
     gsap.set('nav', { opacity: 0, y: -20 });
     gsap.set('.fade-in, .fade-in-up', { opacity: 0, visibility: 'hidden' });
-    gsap.set('#home .glass-card', { opacity: 0, scale: 0.8, filter: 'blur(20px)' });
+    
+    // Optimized initial state for mobile (no blur)
+    gsap.set('#home .glass-card', { 
+        opacity: 0, 
+        scale: isMobileDevice ? 0.95 : 0.8, 
+        filter: isMobileDevice ? 'none' : 'blur(20px)' 
+    });
 
     const checkInterval = setInterval(() => {
         if (window.threeScene && window.threeScene.camera) {
@@ -79,81 +86,79 @@ function startCinematicSequence() {
     document.body.classList.add('overflow-hidden');
 
     // ─── INITIAL CINEMATIC STATE (The "Wide Shot") ───
-    gsap.set(camera.position, { x: -8, y: 3, z: 12 }); 
-    gsap.set(camera.rotation, { x: -0.2, y: -0.5, z: 0 }); 
+    // Simpler initial positions for mobile to reduce calculation
+    gsap.set(camera.position, { x: isMobileDevice ? -4 : -8, y: isMobileDevice ? 1.5 : 3, z: isMobileDevice ? 8 : 12 }); 
+    gsap.set(camera.rotation, { x: isMobileDevice ? -0.1 : -0.2, y: isMobileDevice ? -0.25 : -0.5, z: 0 }); 
     
     gsap.set(sphere.scale, { x: 0.1, y: 0.1, z: 0.1 }); 
     gsap.set(sphere.rotation, { x: Math.PI, y: 0 });
     
-    gsap.set(particles.scale, { x: 5, y: 5, z: 5 }); 
+    gsap.set(particles.scale, { x: isMobileDevice ? 2 : 5, y: isMobileDevice ? 2 : 5, z: isMobileDevice ? 2 : 5 }); 
     gsap.set(particles.material, { opacity: 0 });
 
     // ─── MOVE 1: THE TRACKING SHOT (0s - 4.5s) ───
-    // Camera slides diagonally while zooming in (Dolly + Pan)
+    // Faster, simpler move for mobile
     masterTl.to(camera.position, {
-        x: 0,
-        y: 0,
-        z: 4.5, 
-        duration: 4.5,
+        x: 0, y: 0, z: isMobileDevice ? 5 : 4.5, 
+        duration: isMobileDevice ? 3 : 4.5,
         ease: "power3.inOut"
     }, 0);
 
     masterTl.to(camera.rotation, {
-        x: 0,
-        y: 0,
-        z: 0,
-        duration: 4.5,
+        x: 0, y: 0, z: 0,
+        duration: isMobileDevice ? 3 : 4.5,
         ease: "power3.inOut"
     }, 0);
 
     // ─── MOVE 2: SPHERE & PARTICLE AWAKENING (0.5s - 3.5s) ───
     masterTl.to(sphere.scale, {
         x: 1, y: 1, z: 1,
-        duration: 3.0,
+        duration: isMobileDevice ? 2 : 3.0,
         ease: "expo.out"
     }, 0.5);
 
     masterTl.to(sphere.rotation, {
-        y: Math.PI * 6, 
-        duration: 4.5,
+        y: Math.PI * (isMobileDevice ? 3 : 6), 
+        duration: isMobileDevice ? 3 : 4.5,
         ease: "power2.inOut"
     }, 0);
 
     masterTl.to(particles.scale, {
         x: 1, y: 1, z: 1,
-        duration: 4.0,
+        duration: isMobileDevice ? 2.5 : 4.0,
         ease: "power4.out"
     }, 0.2);
 
     masterTl.to(particles.material, {
-        opacity: 0.4,
-        duration: 2.5,
+        opacity: isMobileDevice ? 0.3 : 0.4,
+        duration: isMobileDevice ? 1.5 : 2.5,
         ease: "power2.inOut"
     }, 1.0);
 
-    // ─── MOVE 3: SYNCED UI ENTRANCE (Starts at 2s) ───
-    // The UI elements "assemble" as the camera reaches its destination
+    // ─── MOVE 3: SYNCED UI ENTRANCE (Starts EARLY on mobile) ───
     masterTl.add(() => {
         revealMainContentCinematic();
-    }, 2.0); 
+    }, isMobileDevice ? 1.2 : 2.0); 
 
-    // ─── MOVE 4: CAMERA BREATHE (Looping after intro) ───
-    masterTl.add(() => {
-        gsap.to(camera.position, {
-            y: "+=0.15",
-            duration: 4,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut"
-        });
-        gsap.to(camera.rotation, {
-            z: "+=0.01",
-            duration: 6,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut"
-        });
-    }, 4.5);
+    // ─── MOVE 4: CAMERA BREATHE (Disabled on mobile for FPS) ───
+    if (!isMobileDevice) {
+        masterTl.add(() => {
+            gsap.to(camera.position, {
+                y: "+=0.15",
+                duration: 4,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            gsap.to(camera.rotation, {
+                z: "+=0.01",
+                duration: 6,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+        }, 4.5);
+    }
 }
 
 function revealMainContentCinematic() {
@@ -164,126 +169,111 @@ function revealMainContentCinematic() {
 
     document.body.classList.add('page-loaded');
 
-    // Create a master UI timeline for better orchestration
+    // High performance mode for mobile: No blur, no rotationX, simpler eases
     const uiTl = gsap.timeline({ 
         defaults: { 
             force3D: true, 
-            ease: "expo.out" 
+            ease: isMobileDevice ? "power2.out" : "expo.out" 
         } 
     });
 
-    // 1. Navbar: Slide down with elegant fade
+    // 1. Navbar: Fast slide
     uiTl.fromTo('nav', 
-        { opacity: 0, y: -50, scaleY: 0.9, filter: 'blur(10px)' },
-        { opacity: 1, y: 0, scaleY: 1, filter: 'blur(0px)', duration: 1.5 }, 
+        { opacity: 0, y: -30 },
+        { opacity: 1, y: 0, duration: isMobileDevice ? 0.8 : 1.5 }, 
         0
     );
 
-    // 2. Background Elements (Orbs)
+    // 2. Background Elements (Orbs) - Simplified for mobile
     const backgroundOrbs = document.querySelectorAll('#home .absolute[class*="blur"]');
-    uiTl.fromTo(backgroundOrbs,
-        { opacity: 0, scale: 0.4, y: 150, filter: 'blur(30px)' },
-        { opacity: 0.2, scale: 1, y: 0, filter: 'blur(120px)', duration: 2.5, stagger: 0.3 },
-        0.2
-    );
+    if (!isMobileDevice) {
+        uiTl.fromTo(backgroundOrbs,
+            { opacity: 0, scale: 0.4, y: 150, filter: 'blur(30px)' },
+            { opacity: 0.2, scale: 1, y: 0, filter: 'blur(120px)', duration: 2.5, stagger: 0.3 },
+            0.2
+        );
+    } else {
+        // Just fade in orbs on mobile without heavy blur transition
+        gsap.set(backgroundOrbs, { filter: 'blur(60px)' });
+        uiTl.to(backgroundOrbs, { opacity: 0.15, duration: 1.5, stagger: 0.2 }, 0.2);
+    }
 
-    // 3. Hero Card: Ultra-smooth "Bloom"
+    // 3. Hero Card: Simple scale & fade on mobile
     uiTl.fromTo('#home .glass-card', 
         { 
             opacity: 0, 
-            scale: 0.8, 
-            rotationX: -15, 
-            y: 100,
-            transformPerspective: 2000,
-            filter: 'blur(30px)' 
+            scale: isMobileDevice ? 0.95 : 0.8, 
+            y: isMobileDevice ? 30 : 100,
+            rotationX: isMobileDevice ? 0 : -15, 
+            filter: isMobileDevice ? 'none' : 'blur(30px)' 
         },
         { 
             opacity: 1, 
             scale: 1, 
             rotationX: 0, 
             y: 0,
-            filter: 'blur(0px)',
-            duration: 2.2, 
-            ease: "expo.out" 
+            filter: 'none',
+            duration: isMobileDevice ? 1.2 : 2.2, 
         },
         0.4
     );
 
-    // 4. Badge: Soft pop
+    // 4. Text & Elements: Remove rotationX and blur on mobile
     uiTl.fromTo('#home .fade-in:first-child', 
-        { opacity: 0, scale: 0.5, y: 30, filter: 'blur(10px)' },
-        { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: "back.out(1.5)" },
-        0.8
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.8 },
+        0.7
     );
 
-    // 5. Main Heading: High-end 3D "Assembly"
     uiTl.fromTo('#home h1.fade-in-up', 
         { 
             opacity: 0, 
-            y: 80, 
-            rotationX: 60, 
-            skewY: 5,
-            scale: 0.85,
-            filter: 'blur(20px)',
-            transformOrigin: "top center"
+            y: 40, 
+            rotationX: isMobileDevice ? 0 : 60, 
+            filter: isMobileDevice ? 'none' : 'blur(20px)'
         },
         { 
             opacity: 1, 
             y: 0, 
             rotationX: 0, 
-            skewY: 0,
-            scale: 1,
-            filter: 'blur(0px)',
-            duration: 2,
-            ease: "expo.out"
+            filter: 'none',
+            duration: isMobileDevice ? 1.2 : 2
         },
-        0.9
+        0.8
     );
 
-    // 6. Typing Text Container
     uiTl.fromTo('#home div.fade-in-up:nth-of-type(2)', 
-        { opacity: 0, x: -60, scaleX: 0.5, filter: 'blur(10px)' },
-        { opacity: 1, x: 0, scaleX: 1, filter: 'blur(0px)', duration: 1.5 },
+        { opacity: 0, x: isMobileDevice ? -20 : -60 },
+        { opacity: 1, x: 0, duration: 1.0 },
+        1.0
+    );
+
+    uiTl.fromTo('#home p.fade-in-up', 
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 1.2 },
         1.2
     );
 
-    // 7. Description Paragraph
-    uiTl.fromTo('#home p.fade-in-up', 
-        { opacity: 0, y: 40, filter: 'blur(15px)' },
-        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8 },
-        1.4
-    );
-
-    // 8. CTA Buttons: Staggered "Glide"
+    // 5. CTA Buttons: Fast staggered fade
     const ctaButtons = document.querySelectorAll('#home .fade-in-up:last-child a, #home .flex.gap-6 a');
     uiTl.fromTo(ctaButtons, 
-        { opacity: 0, y: 30, scale: 0.9, rotation: -3, filter: 'blur(10px)' },
+        { opacity: 0, y: 15 },
         { 
             opacity: 1, 
             y: 0, 
-            scale: 1, 
-            rotation: 0, 
-            filter: 'blur(0px)',
-            duration: 1.2, 
-            stagger: 0.2,
-            ease: "power4.out" 
+            duration: 0.8, 
+            stagger: isMobileDevice ? 0.1 : 0.2,
+            ease: "power2.out" 
         },
-        1.6
+        1.4
     );
 
-    // 9. Scroll Indicator
-    uiTl.fromTo('.absolute.bottom-10', 
-        { opacity: 0, y: -30 },
-        { opacity: 0.7, y: 0, duration: 1.5, ease: "bounce.out" },
-        2.2
-    );
-
-    // Initialize systems
+    // Initialize systems faster on mobile
     setTimeout(() => {
         initScrollReveal();
         initSkillBars();
         initTypingEffect();
-    }, 2000);
+    }, isMobileDevice ? 500 : 2000);
 }
 
 function forceReveal() {
@@ -600,16 +590,16 @@ function initMagneticElements() {
    SYSTEM 6: CARD 3D TILT (Calm & Smooth)
 ══════════════════════════════════════════════════════════════ */
 function initCardTilt() {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || isMobileDevice) return;
 
     const cards = document.querySelectorAll('.glass-card');
 
     cards.forEach(card => {
         card.addEventListener('mouseenter', () => {
             gsap.to(card, {
-                z: 20,
-                transformPerspective: 1000,
-                duration: 0.3, ease: 'power2.out'
+                scale: 1.015,
+                backgroundColor: 'rgba(25, 35, 55, 0.9)',
+                duration: 0.4
             });
         });
 
@@ -632,9 +622,10 @@ function initCardTilt() {
             gsap.to(card, {
                 rotationX: 0,
                 rotationY: 0,
-                z: 0,
-                duration: 0.65,
-                ease: 'elastic.out(1, 0.5)'
+                scale: 1,
+                backgroundColor: 'rgba(17, 25, 40, 0.75)',
+                duration: 0.6,
+                ease: 'power2.out'
             });
         });
     });

@@ -213,6 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere);
 
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
     // --- FLOATING GEOMETRY (3D Elements) ---
     const floatingGroup = new THREE.Group();
     scene.add(floatingGroup);
@@ -225,9 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const shapes = [];
-    for (let i = 0; i < 12; i++) {
+    const shapeCount = isMobile ? 4 : 12; // Fewer shapes on mobile
+    for (let i = 0; i < shapeCount; i++) {
         const geom = geometries[Math.floor(Math.random() * geometries.length)];
-        const mat = new THREE.MeshPhongMaterial({
+        
+        // Use simpler material on mobile
+        const mat = isMobile ? new THREE.MeshBasicMaterial({
+            color: i % 2 === 0 ? 0x00f3ff : 0xbc13fe,
+            transparent: true,
+            opacity: 0.4
+        }) : new THREE.MeshPhongMaterial({
             color: i % 2 === 0 ? 0x00f3ff : 0xbc13fe,
             transparent: true,
             opacity: 0.6,
@@ -240,8 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Random position in 3D space
         mesh.position.set(
-            (Math.random() - 0.5) * 15,
-            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * (isMobile ? 8 : 15),
+            (Math.random() - 0.5) * (isMobile ? 6 : 10),
             (Math.random() - 0.5) * 8 - 5
         );
         
@@ -249,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Custom properties for animation
         mesh.userData = {
-            rotationSpeed: (Math.random() - 0.5) * 0.02,
+            rotationSpeed: (Math.random() - 0.5) * (isMobile ? 0.01 : 0.02),
             floatSpeed: (Math.random() - 0.5) * 0.01,
             originalY: mesh.position.y
         };
@@ -258,23 +267,25 @@ document.addEventListener('DOMContentLoaded', () => {
         shapes.push(mesh);
     }
 
-    // Add lights for the new shapes
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-    
-    const pointLight = new THREE.PointLight(0x00f3ff, 2, 20);
-    pointLight.position.set(5, 5, 5);
-    scene.add(pointLight);
+    // Only add lights if not mobile (BasicMaterial doesn't need lights)
+    if (!isMobile) {
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        
+        const pointLight = new THREE.PointLight(0x00f3ff, 2, 20);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
 
-    const pointLight2 = new THREE.PointLight(0xbc13fe, 2, 20);
-    pointLight2.position.set(-5, -5, 5);
-    scene.add(pointLight2);
+        const pointLight2 = new THREE.PointLight(0xbc13fe, 2, 20);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+    }
 
     // --- BACKGROUND PARTICLES ---
     const pGeo = new THREE.BufferGeometry();
-    const pCount = 400; // Increased for more depth
+    const pCount = isMobile ? 80 : 400; // Significantly reduced for mobile
     const pPos = new Float32Array(pCount * 3);
-    for(let i=0; i<pCount*3; i++) pPos[i] = (Math.random() - 0.5) * 25;
+    for(let i=0; i<pCount*3; i++) pPos[i] = (Math.random() - 0.5) * (isMobile ? 15 : 25);
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
     
     // Create a circular texture for particles (bokeh effect)
@@ -292,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pTexture = new THREE.CanvasTexture(pCanvas);
 
     const pMat = new THREE.PointsMaterial({ 
-        size: 0.15, 
+        size: isMobile ? 0.2 : 0.15, 
         map: pTexture,
         transparent: true, 
         opacity: 0, // Start invisible for cinematic fade
